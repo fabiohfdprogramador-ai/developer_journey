@@ -1,0 +1,327 @@
+<header style="margin-bottom: 25px;">
+  <h1 style="font-size: 1.8rem; color: var(--accent-blue);">Tópico 1: Linux CLI, Redirecionamento & Streams</h1>
+  <p style="color: var(--text-muted);">Aprenda como o ecossistema UNIX trata dados, entradas e saídas no terminal.</p>
+</header>
+
+<div class="card">
+  <h2>📖 Resumo Teórico: Standard Streams</h2>
+  <p style="line-height: 1.6; color: var(--text-muted); margin-bottom: 10px;">
+    No Linux, todo processo possui 3 canais de comunicação abertos por padrão:
+  </p>
+  <ul style="color: var(--text-muted); padding-left: 20px; line-height: 1.6;">
+    <li><code>stdin (File Descriptor 0)</code>: Entrada padrão (Teclado).</li>
+    <li><code>stdout (File Descriptor 1)</code>: Saída padrão (Tela).</li>
+    <li><code>stderr (File Descriptor 2)</code>: Saída de erro (Tela).</li>
+  </ul>
+  <p style="line-height: 1.6; color: var(--text-muted); margin-top: 10px;">
+    Operadores de Redirecionamento: <code>></code> (sobrescreve), <code>>></code> (anexa no final), <code>|</code> (conecta stdout a stdin).
+  </p>
+</div>
+
+<div class="card">
+  <h2>🧪 25 Exercícios Interativos (Verdadeiro ou Falso)</h2>
+  <p style="color: var(--text-muted); margin-bottom: 20px;">Responda cada questão e clique para conferir a explicação no gabarito oculto.</p>
+
+  <!-- GERADOR DOS 25 EXERCÍCIOS -->
+  
+  <!-- Exercicio 1 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 1 de 25</span><span>Linux CLI</span></div>
+    <p>O operador <code>></code> é usado para anexar dados ao final de um arquivo sem apagar seu conteúdo prévio.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(1, true, false, 'O operador > sobrescreve o arquivo. Para anexar sem apagar, usa-se >>.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(1, false, false, 'O operador > sobrescreve o arquivo. Para anexar sem apagar, usa-se >>.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(1)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-1" class="answer-box"><strong>Gabarito: FALSO.</strong><br>O operador <code>></code> sobrescreve o arquivo. Para anexar sem apagar, usa-se <code>>></code>.</div>
+  </div>
+
+  <!-- Exercicio 2 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 2 de 25</span><span>Linux CLI</span></div>
+    <p>O File Descriptor correspondente ao canal <code>stderr</code> é o número 2.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(2, true, true, 'Correto! stdin=0, stdout=1 e stderr=2.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(2, false, true, 'Correto! stdin=0, stdout=1 e stderr=2.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(2)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-2" class="answer-box"><strong>Gabarito: VERDADEIRO.</strong><br>O canal de erro de um processo sempre possui o identificador 2.</div>
+  </div>
+
+  <!-- Exercicio 3 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 3 de 25</span><span>Linux CLI</span></div>
+    <p>O Pipe (<code>|</code>) conecta o <code>stdout</code> do primeiro comando ao <code>stdin</code> do segundo comando.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(3, true, true, 'Exato! Essa é a base do encadeamento de comandos UNIX.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(3, false, true, 'Exato! Essa é a base do encadeamento de comandos UNIX.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(3)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-3" class="answer-box"><strong>Gabarito: VERDADEIRO.</strong><br>O Pipe canaliza a saída textual de um processo para a entrada do próximo.</div>
+  </div>
+
+  <!-- Exercicio 4 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 4 de 25</span><span>Linux CLI</span></div>
+    <p>O comando <code>mkdir -p pasta/subpasta</code> falha se a pasta pai não existir previamente.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(4, true, false, 'A flag -p cria os diretórios pai automaticamente caso não existam.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(4, false, false, 'A flag -p cria os diretórios pai automaticamente caso não existam.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(4)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-4" class="answer-box"><strong>Gabarito: FALSO.</strong><br>A flag <code>-p</code> (*parents*) cria toda a árvore de diretórios faltantes sem gerar erro.</div>
+  </div>
+
+  <!-- Exercicio 5 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 5 de 25</span><span>Linux CLI</span></div>
+    <p>O comando <code>cat file.txt | grep "error"</code> filtra e exibe no terminal apenas as linhas que contêm a palavra "error".</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(5, true, true, 'Perfeito! O grep atua como filtro de texto no fluxo.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(5, false, true, 'Perfeito! O grep atua como filtro de texto no fluxo.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(5)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-5" class="answer-box"><strong>Gabarito: VERDADEIRO.</strong><br>O <code>grep</code> processa o fluxo do <code>cat</code> via pipe e exibe os acertos.</div>
+  </div>
+
+  <!-- Exercicio 6 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 6 de 25</span><span>Linux CLI</span></div>
+    <p>No Linux, a permissão <code>chmod +x script.sh</code> concede permissão de leitura ao arquivo.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(6, true, false, 'A flag +x concede permissão de EXECUÇÃO. Leitura é +r.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(6, false, false, 'A flag +x concede permissão de EXECUÇÃO. Leitura é +r.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(6)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-6" class="answer-box"><strong>Gabarito: FALSO.</strong><br><code>+x</code> significa *executable* (execução). Leitura é <code>+r</code> (*read*).</div>
+  </div>
+
+  <!-- Exercicio 7 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 7 de 25</span><span>Linux CLI</span></div>
+    <p>O diretório `/etc` no sistema de arquivos Linux é destinado ao armazenamento de executáveis de usuários.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(7, true, false, 'O diretório /etc armazena arquivos de configuração. Executáveis ficam em /bin ou /usr/bin.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(7, false, false, 'O diretório /etc armazena arquivos de configuração. Executáveis ficam em /bin ou /usr/bin.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(7)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-7" class="answer-box"><strong>Gabarito: FALSO.</strong><br><code>/etc</code> guarda configurações do sistema. Programas/executáveis ficam em <code>/bin</code> ou <code>/usr/bin</code>.</div>
+  </div>
+
+  <!-- Exercicio 8 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 8 de 25</span><span>Linux CLI</span></div>
+    <p>O comando <code>pwd</code> significa *Print Working Directory* e exibe o caminho absoluto do diretório atual.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(8, true, true, 'Correto! É o comando fundamental para não se perder na estrutura.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(8, false, true, 'Correto! É o comando fundamental para não se perder na estrutura.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(8)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-8" class="answer-box"><strong>Gabarito: VERDADEIRO.</strong><br><code>pwd</code> imprime no stdout a pasta exata onde você está posicionado.</div>
+  </div>
+
+  <!-- Exercicio 9 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 9 de 25</span><span>Linux CLI</span></div>
+    <p>O redirecionamento <code>2> error.log</code> salva as mensagens de erro (stderr) no arquivo <code>error.log</code>.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(9, true, true, 'Exato! O número 2 especifica o canal stderr.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(9, false, true, 'Exato! O número 2 especifica o canal stderr.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(9)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-9" class="answer-box"><strong>Gabarito: VERDADEIRO.</strong><br><code>2></code> redireciona especificamente o File Descriptor 2 (stderr).</div>
+  </div>
+
+  <!-- Exercicio 10 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 10 de 25</span><span>Linux CLI</span></div>
+    <p>O comando <code>rm -rf /</code> é seguro para liberar espaço temporário no sistema.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(10, true, false, 'PERIGO! Esse comando deleta recursivamente toda a raiz do sistema.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(10, false, false, 'PERIGO! Esse comando deleta recursivamente toda a raiz do sistema.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(10)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-10" class="answer-box"><strong>Gabarito: FALSO.</strong><br>Este comando apaga todo o sistema de arquivos recursivamente sem confirmação. Jamais execute isso.</div>
+  </div>
+
+  <!-- Exercicio 11 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 11 de 25</span><span>Linux CLI</span></div>
+    <p>A palavra em inglês <em>"Append"</em> no contexto de arquivos significa "Substituir o conteúdo existente".</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(11, true, false, 'Append significa anexar/adicionar ao final. Substituir é Overwrite.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(11, false, false, 'Append significa anexar/adicionar ao final. Substituir é Overwrite.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(11)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-11" class="answer-box"><strong>Gabarito: FALSO.</strong><br><em>Append</em> = Anexar ao final. <em>Overwrite</em> = Sobrescrever/Substituir.</div>
+  </div>
+
+  <!-- Exercicio 12 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 12 de 25</span><span>Linux CLI</span></div>
+    <p>O atalho de terminal <code>Ctrl + C</code> envia o sinal <code>SIGINT</code> para interromper a execução do processo atual.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(12, true, true, 'Correto! É a forma padrão de interromper programas em execução no terminal.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(12, false, true, 'Correto! É a forma padrão de interromper programas em execução no terminal.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(12)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-12" class="answer-box"><strong>Gabarito: VERDADEIRO.</strong><br><code>Ctrl + C</code> dispara uma interrupção via teclado (*SIGINT*) no processo ativo.</div>
+  </div>
+
+  <!-- Exercicio 13 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 13 de 25</span><span>Linux CLI</span></div>
+    <p>O comando <code>ls -la</code> lista todos os arquivos, incluindo arquivos ocultos (que começam com um ponto <code>.</code>).</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(13, true, true, 'Correto! A flag -a exibe arquivos ocultos.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(13, false, true, 'Correto! A flag -a exibe arquivos ocultos.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(13)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-13" class="answer-box"><strong>Gabarito: VERDADEIRO.</strong><br>A flag <code>-a</code> (*all*) inclui arquivos ocultos como <code>.gitignore</code> e <code>.env</code>.</div>
+  </div>
+
+  <!-- Exercicio 14 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 14 de 25</span><span>Linux CLI</span></div>
+    <p>A sintaxe <code>./script.sh</code> é usada para executar um arquivo de script presente no diretório atual.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(14, true, true, 'Exato! O ./ informa ao shell o caminho do diretório corrente.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(14, false, true, 'Exato! O ./ informa ao shell o caminho do diretório corrente.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(14)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-14" class="answer-box"><strong>Gabarito: VERDADEIRO.</strong><br>Indica ao interpretador que o executável está localizado na pasta atual.</div>
+  </div>
+
+  <!-- Exercicio 15 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 15 de 25</span><span>Linux CLI</span></div>
+    <p>O comando <code>touch notes.txt</code> remove o arquivo <code>notes.txt</code> caso ele já exista.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(15, true, false, 'Touch cria um arquivo vazio se ele não existir, ou atualiza seu timestamp se já existir.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(15, false, false, 'Touch cria um arquivo vazio se ele não existir, ou atualiza seu timestamp se já existir.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(15)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-15" class="answer-box"><strong>Gabarito: FALSO.</strong><br><code>touch</code> cria o arquivo ou atualiza a data/hora de alteração dele. Para remover, usa-se <code>rm</code>.</div>
+  </div>
+
+  <!-- Exercicio 16 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 16 de 25</span><span>Linux CLI</span></div>
+    <p>Em Linux, a pasta <code>/var/log</code> é o local padrão onde os serviços do sistema salvam seus logs.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(16, true, true, 'Correto! /var guarda dados variáveis como logs e caches.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(16, false, true, 'Correto! /var guarda dados variáveis como logs e caches.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(16)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-16" class="answer-box"><strong>Gabarito: VERDADEIRO.</strong><br>A pasta <code>/var</code> (*variable*) é destinada a dados que alteram continuamente durante a execução do SO.</div>
+  </div>
+
+  <!-- Exercicio 17 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 17 de 25</span><span>Linux CLI</span></div>
+    <p>O comando <code>mv file1.txt file2.txt</code> altera o nome de <code>file1.txt</code> para <code>file2.txt</code>.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(17, true, true, 'Correto! mv é usado tanto para mover quanto para renomear.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(17, false, true, 'Correto! mv é usado tanto para mover quanto para renomear.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(17)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-17" class="answer-box"><strong>Gabarito: VERDADEIRO.</strong><br>O comando <code>mv</code> (*move*) no mesmo diretório funciona como uma renomeação de arquivo.</div>
+  </div>
+
+  <!-- Exercicio 18 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 18 de 25</span><span>Linux CLI</span></div>
+    <p>O caractere <code>~</code> no terminal é um atalho que representa o diretório home do usuário atual.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(18, true, true, 'Perfeito! Ex: ~/Desktop aponta para a área de trabalho do usuário.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(18, false, true, 'Perfeito! Ex: ~/Desktop aponta para a área de trabalho do usuário.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(18)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-18" class="answer-box"><strong>Gabarito: VERDADEIRO.</strong><br><code>~</code> expande para o caminho do usuário ativo (ex: <code>/home/usuario</code> ou <code>C:\Users\nome</code>).</div>
+  </div>
+
+  <!-- Exercicio 19 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 19 de 25</span><span>Linux CLI</span></div>
+    <p>A instrução <code>echo "Hello" | wc -w</code> conta quantas palavras foram passadas para a entrada do <code>wc</code>.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(19, true, true, 'Correto! wc -w conta o número de palavras (words).')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(19, false, true, 'Correto! wc -w conta o número de palavras (words).')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(19)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-19" class="answer-box"><strong>Gabarito: VERDADEIRO.</strong><br><code>wc -w</code> (*word count*) conta as palavras do fluxo recebido via pipe.</div>
+  </div>
+
+  <!-- Exercicio 20 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 20 de 25</span><span>Linux CLI</span></div>
+    <p>A expressão <code>cd ..</code> move o terminal para um nível acima na hierarquia de diretórios.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(20, true, true, 'Exato! .. faz referência ao diretório pai.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(20, false, true, 'Exato! .. faz referência ao diretório pai.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(20)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-20" class="answer-box"><strong>Gabarito: VERDADEIRO.</strong><br><code>..</code> representa o diretório imediatamente acima.</div>
+  </div>
+
+  <!-- Exercicio 21 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 21 de 25</span><span>Linux CLI</span></div>
+    <p>O File Descriptor de número 0 representa a saída de erro no terminal.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(21, true, false, 'O número 0 representa o stdin (entrada padrão). Saída de erro é 2.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(21, false, false, 'O número 0 representa o stdin (entrada padrão). Saída de erro é 2.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(21)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-21" class="answer-box"><strong>Gabarito: FALSO.</strong><br>0 = <code>stdin</code> (Entrada), 1 = <code>stdout</code> (Saída), 2 = <code>stderr</code> (Erro).</div>
+  </div>
+
+  <!-- Exercicio 22 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 22 de 25</span><span>Linux CLI</span></div>
+    <p>A primeira linha de um script bash (ex: <code>#!/bin/bash</code>) é chamada de Shebang.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(22, true, true, 'Correto! Ela informa ao SO qual interpretador deve rodar o arquivo.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(22, false, true, 'Correto! Ela informa ao SO qual interpretador deve rodar o arquivo.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(22)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-22" class="answer-box"><strong>Gabarito: VERDADEIRO.</strong><br>O <em>Shebang</em> (<code>#!</code>) especifica o binário responsável por interpretar o script.</div>
+  </div>
+
+  <!-- Exercicio 23 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 23 de 25</span><span>Linux CLI</span></div>
+    <p>O operador <code>&> output.txt</code> redireciona tanto o <code>stdout</code> quanto o <code>stderr</code> para o arquivo <code>output.txt</code>.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(23, true, true, 'Correto! É o atalho para capturar toda a saída do processo.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(23, false, true, 'Correto! É o atalho para capturar toda a saída do processo.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(23)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-23" class="answer-box"><strong>Gabarito: VERDADEIRO.</strong><br><code>&></code> redireciona a saída padrão e a de erro combinadas para o mesmo destino.</div>
+  </div>
+
+  <!-- Exercicio 24 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 24 de 25</span><span>Linux CLI</span></div>
+    <p>Em inglês técnico, o termo <em>"Source Code"</em> refere-se ao arquivo binário compilado pelo GCC.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(24, true, false, 'Source Code significa Código-Fonte (humano). O binário compilado é Executable / Binary.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(24, false, false, 'Source Code significa Código-Fonte (humano). O binário compilado é Executable / Binary.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(24)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-24" class="answer-box"><strong>Gabarito: FALSO.</strong><br><em>Source Code</em> é o código-fonte legível por humanos em arquivos <code>.c</code>. O resultado da compilação é o <em>Binary/Executable</em>.</div>
+  </div>
+
+  <!-- Exercicio 25 -->
+  <div class="exercise-card">
+    <div class="exercise-header"><span>Questão 25 de 25</span><span>Linux CLI</span></div>
+    <p>Ao executar <code>history</code> no terminal Bash, o sistema lista os últimos comandos digitados pelo usuário.</p>
+    <div class="btn-group">
+      <button class="btn-option" onclick="answerQuiz(25, true, true, 'Perfeito! É muito útil para rever sequências de comandos.')">Verdadeiro</button>
+      <button class="btn-option" onclick="answerQuiz(25, false, true, 'Perfeito! É muito útil para rever sequências de comandos.')">Falso</button>
+    </div>
+    <button class="btn-toggle-answer" onclick="toggleAnswer(25)">👁️ Mostrar / Ocultar Gabarito</button>
+    <div id="ans-25" class="answer-box"><strong>Gabarito: VERDADEIRO.</strong><br><code>history</code> exibe o histórico de comandos executados na sessão do usuário.</div>
+  </div>
+
+</div>
