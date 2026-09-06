@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Big-O</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>📈 Big-O — A Régua dos Algoritmos</h1>
+    <p class="subtitle">Medir crescimento, não cronômetro: as classes O(1), O(log n), O(n), O(n log n), O(n²), O(2ⁿ) — e a habilidade de olhar um código e dizer o custo.</p>
+
+    <!-- Seção 1: A Ideia -->
+    <div class="section">
+        <h2>1. A Ideia</h2>
+        <p>Big-O descreve como o custo cresce com o tamanho da entrada, ignorando constantes e termos menores:</p>
+        <p><code>3n² + 50n + 7</code> é <strong>O(n²)</strong></p>
+        <p>Vale para <strong>tempo</strong> e para <strong>espaço</strong>.</p>
+
+        <h3>As Classes Principais</h3>
+        <table>
+            <tr><th>Classe</th><th>Nome</th><th>Exemplo</th><th>n = 1 milhão</th></tr>
+            <tr><td><code>O(1)</code></td><td>constante</td><td>acesso a array, hash (médio)</td><td>1</td></tr>
+            <tr><td><code>O(log n)</code></td><td>logarítmica</td><td>busca binária</td><td>~20</td></tr>
+            <tr><td><code>O(n)</code></td><td>linear</td><td>varrer um array</td><td>10⁶</td></tr>
+            <tr><td><code>O(n log n)</code></td><td>linearítmica</td><td>merge sort</td><td>~2·10⁷</td></tr>
+            <tr><td><code>O(n²)</code></td><td>quadrática</td><td>dois laços aninhados</td><td>10¹² (inviável)</td></tr>
+            <tr><td><code>O(2ⁿ)</code></td><td>exponencial</td><td>força bruta de subconjuntos</td><td>esqueça</td></tr>
+        </table>
+    </div>
+
+    <!-- Seção 2: Lendo Código -->
+    <div class="section">
+        <h2>2. Lendo Código</h2>
+        <pre><code>for (i = 0; i &lt; n; i++)         /* O(n) */
+    for (j = 0; j &lt; n; j++)       /* x O(n) = O(n²) */
+        ...
+
+while (n &gt; 1) {
+    n = n / 2;                    /* O(log n): divide */
+}</code></pre>
+
+        <h3>Regras</h3>
+        <ul>
+            <li><strong>Sequência</strong>: soma (fica o dominante)</li>
+            <li><strong>Aninhamento</strong>: multiplica</li>
+            <li><strong>Dividir pela metade</strong> a cada passo = <code>O(log n)</code></li>
+        </ul>
+    </div>
+
+    <!-- Seção 3: Por que Log n é Mágico -->
+    <div class="section">
+        <h2>3. Por que log n é Mágico</h2>
+        <p><strong>Busca binária</strong> em 1 bilhão de itens ordenados:</p>
+        <ul>
+            <li><code>⌈log₂ 10⁹⌉ = 30</code> comparações</li>
+            <li><strong>Busca linear</strong>: até <code>10⁹</code></li>
+        </ul>
+        <p style="color:var(--warning);">💡 É a diferença entre "instantâneo" e "um segundo inteiro de CPU" — e a razão de índices de banco existirem.</p>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Classifique: (a) somar um array; (b) verificar duplicatas com dois laços; (c) verificar duplicatas com um hash set.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n); O(n²); O(n)</code> médio</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Um algoritmo O(n²) processa 1000 itens em 1 s. Estimativa para 10.000?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">100× o tempo → ~100 s</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Qual o custo de inserir no início de um array? E de uma lista ligada?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Array: <code>O(n)</code> (empurra todo mundo); lista: <code>O(1)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> <code>log₂(1024) = ?</code> E quantos passos a busca binária faz em 10⁶ itens?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>10; ~20</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Dois laços em sequência (não aninhados) sobre n: qual o Big-O?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n) + O(n) = O(n)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> Qual o Big-O de um algoritmo que faz <code>2n² + 100n + 5</code> operações?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n²)</code> (termo dominante)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> Qual o Big-O da busca em uma árvore binária balanceada?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(log n)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> Qual o Big-O de um algoritmo que divide o problema pela metade a cada passo?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(log n)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> Qual o Big-O de três laços aninhados, cada um rodando n vezes?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n³)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> Qual o Big-O de um algoritmo que visita cada elemento de uma matriz n×n?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n²)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> Qual o Big-O de um algoritmo que recursivamente chama a si mesmo duas vezes com n-1?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(2ⁿ)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> O que significa <code>O(1)</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Tempo constante, independente do tamanho da entrada.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que significa <code>Ω</code> (Omega) em análise de algoritmos?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Limite inferior (melhor caso) do custo.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que significa <code>Θ</code> (Theta) em análise de algoritmos?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Limite justo (tanto superior quanto inferior).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> Qual o Big-O de percorrer uma lista ligada?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> Qual o Big-O de percorrer um array?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> Qual o Big-O do melhor caso do quicksort?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n log n)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> Qual o Big-O do pior caso do quicksort?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n²)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> Qual o Big-O do merge sort?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n log n)</code> em todos os casos</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> Qual o Big-O de <code>f(n) = 5n + 3log(n)</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> Qual o Big-O de um algoritmo que faz <code>n!</code> operações?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n!)</code> (pior que exponencial)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> Qual o Big-O do algoritmo de Dijkstra com heap?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O((V + E) log V)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> Qual o Big-O da busca em uma tabela hash?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(1)</code> médio, <code>O(n)</code> pior caso</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> Qual o Big-O de <code>for (i=0; i&lt;n; i+=2)</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n)</code> (constante 1/2 é ignorada)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> Qual o Big-O de <code>for (i=0; i&lt;n; i++) for (j=0; j&lt;i; j++)</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n²)</code> (soma 1+2+...+n = n(n+1)/2)</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

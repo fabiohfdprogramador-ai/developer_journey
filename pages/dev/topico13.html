@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Arquitetura de Computadores</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>💻 Arquitetura — Como Seu Código Executa</h1>
+    <p class="subtitle">Bits, a hierarquia de memória e o caminho do C até a CPU — o capítulo que explica por que dois códigos "iguais" têm velocidades 10× diferentes.</p>
+
+    <!-- Seção 1: Representação -->
+    <div class="section">
+        <h2>1. Representação: Tudo é Bit</h2>
+        
+        <h3>Inteiros</h3>
+        <ul>
+            <li><strong>Sem sinal</strong>: base 2</li>
+            <li><strong>Com sinal</strong>: complemento de dois (o bit mais alto vale <code>-2ⁿ⁻¹</code>)</li>
+            <li>Int de 32 bits vai de <code>-2³¹</code> a <code>2³¹-1</code></li>
+            <li>Somar 1 ao máximo dá o mínimo (<strong>overflow silencioso</strong>)</li>
+        </ul>
+
+        <h3>Hexadecimal</h3>
+        <p>Atalho de leitura: 1 dígito hex = 4 bits (<code>0xFF = 255</code>)</p>
+
+        <h3>Ponto Flutuante (IEEE 754)</h3>
+        <ul>
+            <li>Sinal + expoente + mantissa</li>
+            <li><code>0.1 + 0.2 != 0.3</code></li>
+            <li style="color:var(--danger);">⚠️ Nunca compare floats com <code>==</code></li>
+            <li style="color:var(--danger);">⚠️ Nunca guarde dinheiro em float (use inteiros de centavos)</li>
+        </ul>
+    </div>
+
+    <!-- Seção 2: CPU -->
+    <div class="section">
+        <h2>2. A CPU em Uma Página</h2>
+        <p><strong>Ciclo</strong>: buscar instrução → decodificar → executar — bilhões de vezes por segundo.</p>
+        <ul>
+            <li><strong>Pipeline</strong>: várias instruções em estágios simultâneos</li>
+            <li><strong>Branch predictor</strong>: previsão de desvio</li>
+            <li><strong>Registradores</strong>: a memória mais rápida que existe</li>
+            <li><strong>ISA</strong> (x86-64, ARM): contrato entre compilador e processador</li>
+        </ul>
+        <p><code>gcc -S arquivo.c</code> mostra o assembly do seu C — leia uma vez na vida.</p>
+    </div>
+
+    <!-- Seção 3: Hierarquia de Memória -->
+    <div class="section">
+        <h2>3. A Hierarquia de Memória</h2>
+        <table>
+            <tr><th>Nível</th><th>Tamanho típico</th><th>Latência (ordem)</th></tr>
+            <tr><td>Registradores</td><td>bytes</td><td>~0,3 ns</td></tr>
+            <tr><td>Cache L1 / L2 / L3</td><td>KB → MB</td><td>1 → 10 ns</td></tr>
+            <tr><td>RAM</td><td>GBs</td><td>~100 ns</td></tr>
+            <tr><td>SSD</td><td>TBs</td><td>~100 μs</td></tr>
+            <tr><td>Rede (mesmo DC)</td><td>—</td><td>~500 μs</td></tr>
+        </table>
+        <p>Cada nível é ~10-100× mais lento que o anterior.</p>
+        <ul>
+            <li>CPU carrega memória em <strong>linhas de cache</strong> (64 bytes)</li>
+            <li>Acessar dados <strong>contíguos e em sequência</strong> aproveita a linha inteira</li>
+            <li>Pular aleatoriamente paga RAM toda vez</li>
+        </ul>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Converta <code>0xC3</code> para decimal e binário.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>195; 1100 0011</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Por que <code>int x = 2147483647; x = x + 1;</code> resulta em <code>-2147483648</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Complemento de dois: estourou para o menor valor (<strong>overflow</strong>).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Por que comparar <code>double</code> com <code>==</code> é bug em potencial? Qual a alternativa?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Erros de arredondamento binário; compare <code>fabs(a-b) < eps</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Ordene por latência: RAM, L1, SSD, registrador, rede local.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">registrador < L1 < RAM < SSD < rede</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Explique com linhas de cache por que iterar um array de structs pequenos é mais rápido que seguir uma lista ligada.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Structs contíguos: uma linha de 64 B traz vários elementos; nós da lista estão espalhados → um cache miss por nó.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> O que é <strong>pipeline</strong> em uma CPU?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Técnica que executa várias instruções em estágios simultâneos para aumentar throughput.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que é <strong>cache miss</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quando os dados solicitados não estão no cache, forçando acesso à memória principal.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> O que é <strong>cache hit</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quando os dados solicitados estão no cache.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> Qual a diferença entre <strong>RAM</strong> e <strong>ROM</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">RAM é volátil e pode ser escrita; ROM é não-volátil e geralmente somente leitura.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que é <strong>endianness</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ordem dos bytes na memória: little-endian (byte menos significativo primeiro) ou big-endian.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> Qual a diferença entre <strong>SRAM</strong> e <strong>DRAM</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">SRAM é mais rápida e cara (usada em cache); DRAM é mais lenta e barata (usada em RAM principal).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> O que é <strong>ponto flutuante</strong> IEEE 754?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Padrão para representar números reais em binário: sinal + expoente + mantissa.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que é <strong>localidade espacial</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Tendência de acessar endereços de memória próximos uns dos outros.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>localidade temporal</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Tendência de acessar o mesmo endereço de memória repetidamente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> Qual a largura típica de uma linha de cache?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">64 bytes.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> O que é <strong>ALU</strong> (Arithmetic Logic Unit)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Componente da CPU que executa operações aritméticas e lógicas.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que é <strong>barramento</strong> (bus)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Caminho de comunicação entre componentes do computador (dados, endereço, controle).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> O que é <strong>frequência de clock</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Número de ciclos por segundo (medido em Hz) que a CPU executa.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <strong>código de máquina</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Instruções binárias que a CPU executa diretamente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que é <strong>assembly</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Representação textual do código de máquina, com mnemônicos para instruções.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> Qual a diferença entre <strong>RISC</strong> e <strong>CISC</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">RISC: instruções reduzidas e simples; CISC: instruções complexas e variadas.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <strong>overflow</strong> em aritmética de inteiros?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quando o resultado de uma operação excede a capacidade do tipo.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que é <strong>underflow</strong> em ponto flutuante?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quando o resultado é tão pequeno que não pode ser representado (vira 0).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que faz o <strong>compilador</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Traduz código de alto nível (C, Go) para código de máquina ou assembly.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> O que é <strong>JIT</strong> (Just-In-Time) compilation?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Compilação em tempo de execução (usada em VMs como JVM, V8).</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

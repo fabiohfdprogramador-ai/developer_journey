@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Arrays e Strings</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>📊 Arrays e Strings</h1>
+    <p class="subtitle">Vetores e matrizes, o modelo de string do C (bytes terminados em '\0') e as funções de string.h — mais o primeiro encontro honesto com a memória contígua.</p>
+
+    <!-- Seção 1: Arrays -->
+    <div class="section">
+        <h2>1. Arrays</h2>
+        <pre><code>int notas[5] = {90, 85, 70, 60, 95};
+notas[0] = 100;  /* índices de 0 a 4 */
+int n = sizeof notas / sizeof notas[0];  /* 5 elementos */
+
+double media = 0;
+for (int i = 0; i &lt; n; i++) {
+    media += notas[i];
+}
+media /= n;</code></pre>
+        <p>Um array é um <strong>bloco contíguo de memória</strong>.</p>
+        <p style="color:var(--danger);">⚠️ C não checa limites: <code>notas[7]</code> compila e corrompe memória alheia — comportamento indefinido.</p>
+        
+        <h3>Matrizes</h3>
+        <pre><code>int grade[3][4];  /* 3 linhas × 4 colunas */
+/* contíguas: linha após linha — isso importa para cache (cap. 13) */</code></pre>
+    </div>
+
+    <!-- Seção 2: Strings -->
+    <div class="section">
+        <h2>2. Strings — Não Existe "Tipo String"</h2>
+        <p>Uma string em C é um <strong>array de char</strong> terminado no byte <code>0</code> (<code>'\0'</code>):</p>
+        <pre><code>char nome[16] = "Ana";
+/* memória: 'A' 'n' 'a' '\0' ... */
+printf("%s tem %zu letras\n", nome, strlen(nome));  /* 3 */</code></pre>
+
+        <h3>Kit do &lt;string.h&gt;</h3>
+        <table>
+            <tr><th>Função</th><th>Faz</th><th>Cuidados</th></tr>
+            <tr><td><code>strlen(s)</code></td><td>tamanho (sem contar o \0)</td><td>percorre até achar \0</td></tr>
+            <tr><td><code>strcpy(dst, src)</code></td><td>copia</td><td>dst precisa ter espaço!</td></tr>
+            <tr><td><code>strcat(dst, src)</code></td><td>concatena</td><td>idem</td></tr>
+            <tr><td><code>strcmp(a, b)</code></td><td>compara (0 = iguais)</td><td>não use <code>==</code> para comparar conteúdos</td></tr>
+            <tr><td><code>snprintf(buf, n, fmt, ...)</code></td><td>monta string com limite</td><td>a forma segura de compor</td></tr>
+        </table>
+    </div>
+
+    <!-- Seção 3: Exemplo Resolvido -->
+    <div class="section">
+        <h2>3. Exemplo Resolvido — Inverter uma String</h2>
+        <pre><code>void inverte(char *s) {
+    int i = 0, j = (int)strlen(s) - 1;
+    while (i &lt; j) {
+        char tmp = s[i];
+        s[i] = s[j];
+        s[j] = tmp;
+        i++;
+        j--;
+    }
+}</code></pre>
+        <p>Dois índices caminhando um contra o outro — o padrão <strong>"two pointers"</strong> que você reencontrará em entrevistas.</p>
+    </div>
+
+    <!-- Seção 4: Buffer Overflow -->
+    <div class="section">
+        <h2>4. ⚠️ A Causa Nº 1 de Vulnerabilidades Históricas</h2>
+        <p>Escrever além do array (<strong>buffer overflow</strong>):</p>
+        <pre><code>char buf[8];
+strcpy(buf, entrada_do_usuario);
+/* se entrada tem 30 bytes, sobrescreve a pilha */</code></pre>
+        <p style="color:var(--danger);">Sempre limite: <code>snprintf</code> / <code>strncpy</code> + tamanho do buffer.</p>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Encontre o maior elemento de um <code>int v[n]</code>.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Varra guardando o máximo: <code>int max = v[0]; for (int i=1; i&lt;n; i++) if (v[i] &gt; max) max = v[i];</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Conte as vogais de uma string.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Laço com <code>switch</code> ou <code>strchr("aeiou", tolower(s[i]))</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Por que <code>if (a == b)</code> não compara duas strings? O que usar?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>==</code> compara endereços; use <code>strcmp(a, b) == 0</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Implemente <code>int eh_palindromo(char *s)</code>.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Two pointers comparando em vez de trocar.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Some as diagonais de uma matriz 3×3.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Principal: <code>m[i][i]</code>; Secundária: <code>m[i][2-i]</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> O que faz <code>strlen("Hello")</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Retorna <code>5</code> (não conta o <code>\0</code>).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> Como copiar uma string com segurança?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>strncpy(dest, src, size - 1); dest[size - 1] = '\0';</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> O que é um <strong>buffer overflow</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Escrever dados além do espaço alocado para um buffer, corrompendo memória adjacente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> Como declarar uma string de 20 caracteres em C?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>char str[20];</code> (comporta 19 caracteres + '\0')</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que faz <code>strcat(a, b)</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Concatena a string <code>b</code> ao final de <code>a</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> Qual a diferença entre <code>char s[] = "abc"</code> e <code>char *s = "abc"</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>s[]</code> é um array modificável; <code>*s</code> aponta para um literal (geralmente em seção de somente leitura).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> Como contar o número de palavras em uma string?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Contar transições de não-espaço para espaço (ou vice-versa).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que é uma <strong>matriz</strong> em C?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Um array de arrays (bloco contíguo 2D).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> Como acessar o terceiro elemento de um array <code>v</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>v[2]</code> (índices começam em 0).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é o <strong>terminador nulo</strong> em strings C?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">O caractere <code>'\0'</code> que marca o fim da string.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> Como converter uma string para maiúsculas?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Laço com <code>toupper(s[i])</code> (inclua <code>&lt;ctype.h&gt;</code>).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que faz <code>snprintf</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Formata uma string com limite de tamanho (versão segura de <code>sprintf</code>).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> Como encontrar a primeira ocorrência de um caractere em uma string?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>strchr(s, char)</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <strong>comportamento indefinido</strong> em C?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Situações onde o padrão C não especifica o que deve acontecer (ex: acessar array fora dos limites).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> Como comparar duas strings ignorando maiúsculas/minúsculas?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>strcasecmp(a, b)</code> (POSIX) ou implementar com <code>tolower</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> Como ler uma linha inteira (com espaços) do usuário?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>fgets(buffer, size, stdin)</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <strong>localidade de referência</strong> (cache locality)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Acesso a dados próximos na memória, que aproveita as linhas de cache.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> Como inverter uma string <strong>in-place</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Two pointers trocando caracteres das pontas.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que faz <code>sizeof</code> em um array?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Retorna o tamanho total em bytes do array.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> Como remover espaços em branco no início e fim de uma string?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Percorrer do início enquanto espaço, depois do fim enquanto espaço, e deslocar a string.</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

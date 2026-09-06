@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Contagem</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>🔢 Contagem — O Essencial</h1>
+    <p class="subtitle">Princípio multiplicativo, permutações e combinações — o suficiente para analisar algoritmos, estimar espaços de estados e conversar com probabilidade.</p>
+
+    <!-- Seção 1: As Três Ferramentas -->
+    <div class="section">
+        <h2>1. As Três Ferramentas</h2>
+        
+        <h3>Princípio Multiplicativo</h3>
+        <p>Escolhas independentes se multiplicam.</p>
+        <p><strong>Exemplo</strong>: senha de 4 dígitos → <code>10⁴ = 10.000</code> possibilidades.</p>
+
+        <h3>Permutações</h3>
+        <p>Ordenar n objetos: <code>n!</code></p>
+        <p>Escolher k com ordem: <code>n!/(n−k)!</code></p>
+        <p><strong>Exemplo</strong>: número de maneiras de escolher um presidente e um vice-presidente de 10 pessoas: <code>10·9 = 90</code>.</p>
+
+        <h3>Combinações</h3>
+        <p>Escolher k sem ordem: <code>C(n,k) = n!/(k!(n−k)!)</code></p>
+        <p><strong>Exemplo</strong>: número de comitês de 3 pessoas em um grupo de 10: <code>C(10,3) = 120</code>.</p>
+
+        <p style="color:var(--warning);">💡 O teste: trocar a ordem gera caso novo? <strong>Sim</strong> → permutação. <strong>Não</strong> → combinação.</p>
+    </div>
+
+    <!-- Seção 2: Exemplos no Mundo Dev -->
+    <div class="section">
+        <h2>2. Exemplos no Mundo Dev</h2>
+        <ul>
+            <li><strong>IPv4</strong>: 4 bytes → <code>2³² ≈ 4,3 bilhões</code> de endereços (por isso acabou)</li>
+            <li><strong>IPv6</strong>: <code>2¹²⁸</code></li>
+            <li><strong>Code review</strong>: num time de 8, duplas possíveis: <code>C(8,2) = 28</code></li>
+            <li><strong>Testes</strong>: combinações de parâmetros para testar</li>
+        </ul>
+    </div>
+
+    <!-- Seção 3: Complementar e Pombos -->
+    <div class="section">
+        <h2>3. Complementar e Pombos</h2>
+        
+        <h3>Complementar</h3>
+        <p>Contar "pelo menos um" costuma ser mais fácil por complementar: <strong>total – nenhum</strong>.</p>
+
+        <h3>Princípio da Casa dos Pombos</h3>
+        <p><code>n+1</code> pombos em <code>n</code> casas → alguma casa tem 2.</p>
+        <p><strong>Exemplo</strong>: 366 pessoas garantem 2 com o mesmo aniversário.</p>
+        <p style="color:var(--warning);">💡 Qualquer função hash com mais chaves que buckets tem colisão.</p>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Quantas strings binárias de 8 bits existem? Quantas têm exatamente dois 1s?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>2⁸ = 256</code>; <code>C(8,2) = 28</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> De 10 microsserviços, quantos pares distintos podem se comunicar?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>C(10,2) = 45</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Placas com 3 letras (26) e 4 dígitos: quantas?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>26³ · 10⁴ = 17.576 · 10.000 = 175.760.000</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Num time de 12, quantos comitês de 3 com pelo menos 1 sênior, se há 4 sêniores?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>C(12,3) - C(8,3) = 220 - 56 = 164</code> (complementar)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Por que qualquer tabela hash de 1000 buckets com 1001 chaves tem colisão garantida?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Casa dos pombos: mais chaves que casas → pelo menos 2 caem no mesmo bucket.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> Quantas maneiras de organizar 5 livros em uma prateleira?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>5! = 120</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> Quantas senhas de 6 caracteres com letras minúsculas (26) podem ser formadas?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>26⁶ = 308.915.776</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> De um baralho de 52 cartas, quantas combinações de 5 cartas existem?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>C(52,5) = 2.598.960</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> Quantas maneiras de escolher 3 funcionários para uma comissão de um grupo de 10?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>C(10,3) = 120</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> Quantas maneiras de escolher um presidente, um vice e um tesoureiro de um grupo de 10?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>10 · 9 · 8 = 720</code> (permutação com ordem)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> Quantos subconjuntos de um conjunto com n elementos existem?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>2ⁿ</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> Em uma sala com 30 pessoas, quantos apertos de mão distintos são possíveis?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>C(30,2) = 435</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> Qual a probabilidade de sair cara em 5 lançamentos de uma moeda?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>1/32</code> (um caso favorável em 2⁵ possíveis)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> Quantas palavras de 4 letras podem ser formadas com as letras A, B, C, D, E sem repetição?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>5 · 4 · 3 · 2 = 120</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> Quantas permutações da palavra "BOOK" existem?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>4!/2! = 12</code> (O se repete)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> De 5 candidatos, quantas maneiras de escolher 2 para uma entrevista (ordem importa)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>5 · 4 = 20</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> De 5 candidatos, quantas maneiras de escolher 2 para uma comissão (ordem não importa)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>C(5,2) = 10</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> Quantos números de 3 dígitos podem ser formados com os dígitos 1,2,3,4,5 sem repetição?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>5 · 4 · 3 = 60</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> Em uma turma de 20, quantas maneiras de escolher um representante e um suplente?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>20 · 19 = 380</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> Quantos anagramas da palavra "CASA" existem?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>4!/2! = 12</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> Qual o número de subconjuntos de 3 elementos de um conjunto com 7 elementos?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>C(7,3) = 35</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> Quantas maneiras de distribuir 10 brinquedos distintos para 3 crianças?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>3¹⁰ = 59.049</code> (cada brinquedo tem 3 opções de criança)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> Quantos números de 4 dígitos distintos podem ser formados com 0,1,2,3,4,5?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>5 · 5 · 4 · 3 = 300</code> (primeiro dígito não pode ser 0)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> Em um grupo de 12 pessoas, quantos grupos de 4 podem ser formados?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>C(12,4) = 495</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> Quantas senhas de 8 bits com exatamente 3 uns existem?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>C(8,3) = 56</code></span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

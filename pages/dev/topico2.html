@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Git de Verdade</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>📦 Git de Verdade</h1>
+    <p class="subtitle">Snapshots, branches baratos, merge x rebase e o fluxo de Pull Request — seu GitHub é seu currículo.</p>
+
+    <!-- Seção 1: Modelo Mental -->
+    <div class="section">
+        <h2>1. O Modelo Mental</h2>
+        <p>Git guarda <strong>snapshots</strong> do projeto (commits), cada um apontando para o anterior — um grafo. Uma <strong>branch</strong> é só um ponteiro móvel para um commit; criar branch custa nada.</p>
+        <p><strong>Três áreas:</strong></p>
+        <ul>
+            <li><strong>Working directory</strong> — seus arquivos atuais</li>
+            <li><strong>Staging</strong> — o que vai entrar no próximo commit</li>
+            <li><strong>Repository</strong> — histórico permanente</li>
+        </ul>
+        <div style="text-align:center; padding:16px; background:var(--bg-dark); border-radius:8px; margin:12px 0;">
+            <pre style="text-align:left; font-size:12px;">
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   Working   │ → │   Staging   │ → │  Repository │
+│  Directory  │    │    Area     │    │  (History)  │
+└─────────────┘    └─────────────┘    └─────────────┘
+     (arquivos)       (git add)          (git commit)
+            </pre>
+        </div>
+    </div>
+
+    <!-- Seção 2: O Ciclo Diário -->
+    <div class="section">
+        <h2>2. O Ciclo Diário</h2>
+        <pre><code>git status                    # sempre: onde estou, o que mudou
+git add src/app.js           # escolhe o que entra
+git add -p                   # staging por trecho (poderoso!)
+git commit -m "feat: valida email no cadastro"
+git log --oneline --graph    # o grafo do projeto
+git diff                     # o que mudou (não staged)
+git diff --staged            # o que está no staging</code></pre>
+
+        <h3>Mensagens que prestam</h3>
+        <p>Imperativo curto + o porquê no corpo:</p>
+        <pre><code>fix: evita duplicar pedido no retry
+
+Adiciona idempotência por request-id para que
+retry automático não crie pedidos duplicados.</code></pre>
+        <p style="color:var(--danger)">"Ajustes" — não.</p>
+    </div>
+
+    <!-- Seção 3: Branches, Merge e Rebase -->
+    <div class="section">
+        <h2>3. Branches, Merge e Rebase</h2>
+        <pre><code>git switch -c feat/login      # cria e muda para a branch
+git switch main &amp;&amp; git pull   # atualiza a main
+git merge feat/login          # junta criando commit de merge
+git rebase main               # reaplica seus commits sobre a main</code></pre>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:12px 0;">
+            <div style="background:var(--bg-dark); padding:16px; border-radius:8px; border-left:3px solid var(--primary);">
+                <h4 style="color:var(--primary); margin-bottom:4px;">Merge</h4>
+                <p style="font-size:14px;">Preserva a história como aconteceu. Bom para juntar trabalho compartilhado.</p>
+            </div>
+            <div style="background:var(--bg-dark); padding:16px; border-radius:8px; border-left:3px solid var(--secondary);">
+                <h4 style="color:var(--secondary); margin-bottom:4px;">Rebase</h4>
+                <p style="font-size:14px;">Reescreve sua branch para uma história linear. Bom antes do PR.</p>
+            </div>
+        </div>
+
+        <h3>⚠️ Regra de Ouro</h3>
+        <p style="color:var(--danger);">Nunca rebase commits já publicados/compartilhados.</p>
+
+        <h3>Conflito não é erro, é decisão</h3>
+        <pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+console.log("versão antiga")
+=======
+console.log("versão nova")
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feat/login</code></pre>
+        <p>Abra o arquivo, escolha, <code>git add</code> e continue.</p>
+    </div>
+
+    <!-- Seção 4: Remotos e PRs -->
+    <div class="section">
+        <h2>4. Trabalhando com Remotos e PRs</h2>
+        <pre><code>git clone git@github.com:voce/projeto.git
+git push -u origin feat/login        # publica a branch
+# → abra o Pull Request na interface
+# Descreva O QUÊ e POR QUÊ
+git fetch &amp;&amp; git log origin/main..main  # o que você tem que o remoto não tem</code></pre>
+        <p><strong>Fluxo profissional:</strong> branch pequena → commits limpos → PR com descrição → review → merge na main.</p>
+        <p style="color:var(--success);">PRs pequenos (&lt; 400 linhas) recebem revisões melhores e entram mais rápido.</p>
+    </div>
+
+    <!-- Seção 5: Kit de Sobrevivência -->
+    <div class="section">
+        <h2>5. Kit de Sobrevivência</h2>
+        <pre><code>git stash                     # guarda mudanças temporariamente
+git stash pop                 # devolve as mudanças
+git restore arquivo           # descarta mudança local
+git revert &lt;hash&gt;             # desfaz um commit (seguro em público)
+git reset --hard HEAD~1       # apaga o último commit LOCAL (cuidado!)
+git reflog                    # a máquina do tempo: encontra "commits perdidos"</code></pre>
+    </div>
+
+    <!-- Seção 6: Antipadrões -->
+    <div class="section">
+        <h2>6. Antipadrões que Denunciam Iniciante</h2>
+        <ul>
+            <li style="color:var(--danger);">❌ Commit gigante "ajustes finais"</li>
+            <li style="color:var(--danger);">❌ Trabalhar direto na main</li>
+            <li style="color:var(--danger);">❌ <code>git push -f</code> em branch compartilhada</li>
+            <li style="color:var(--danger);">❌ Repositório sem README</li>
+            <li style="color:var(--danger);">❌ Segredos commitados (senha em código — trocar a senha, não só apagar o arquivo)</li>
+        </ul>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Qual a diferença entre working directory, staging e repository?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Arquivos reais → seleção do próximo commit → histórico permanente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Você fez 3 commits na feature e a main andou. Que comando deixa sua branch linear sobre a main?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>git rebase main</code> (na feature)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Commitou um erro já publicado na main. Comando seguro para desfazer?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>git revert &lt;hash&gt;</code> — cria commit inverso sem reescrever história.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Para que serve <code>git add -p</code> e por que ele melhora seus commits?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Staging por trecho: permite commits atômicos e mensagens honestas.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Monte o fluxo completo (comandos) de: criar branch, commitar, publicar e preparar o PR.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>git switch -c feat/x → git add -p → git commit -m "..." → git push -u origin feat/x → abrir PR</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> <code>git reflog</code> te salva em qual situação clássica?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Recuperar commit "perdido" após reset/rebase errado.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> Como ver o que mudou e ainda não foi adicionado ao staging?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>git diff</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> Como ver o que já está no staging?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>git diff --staged</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> Como desfazer alterações locais em um arquivo específico?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>git restore arquivo</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> Como guardar mudanças temporariamente sem commitar?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>git stash</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> Como recuperar mudanças guardadas com stash?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>git stash pop</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> Qual comando mostra o grafo de commits de forma compacta?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>git log --oneline --graph</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que é uma branch no Git?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Um ponteiro móvel para um commit.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> Por que nunca se deve fazer <code>git push -f</code> em branch compartilhada?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Reescreve a história publicada, quebrando o trabalho de quem já está na branch.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> Como atualizar sua branch main com as mudanças do remoto?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>git switch main &amp;&amp; git pull</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> Qual a diferença entre merge e rebase?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Merge preserva a história real; rebase reescreve para uma história linear.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> Como resolver um conflito de merge?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Editar os arquivos com os marcadores <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code> e <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>, depois <code>git add</code> e continuar.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> Como criar e mudar para uma nova branch ao mesmo tempo?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>git switch -c nome-da-branch</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> Como ver quais commits você tem localmente que o remoto não tem?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>git log origin/main..main</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que fazer se você commitou um segredo (senha) no repositório?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Trocar o segredo imediatamente (o histórico do Git lembra mesmo após apagar).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> Como desfazer o último commit mantendo as mudanças no working directory?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>git reset --soft HEAD~1</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> Como desfazer o último commit descartando as mudanças?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>git reset --hard HEAD~1</code> (cuidado: perde as mudanças)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que significa uma mensagem de commit bem escrita?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Imperativo curto + explicação do porquê no corpo quando necessário.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> Por que PRs pequenos são melhores?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Recebem revisões melhores e são aprovados mais rápido (&lt; 400 linhas).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> Como listar todos os branches (locais e remotos)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>git branch -a</code></span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

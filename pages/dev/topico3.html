@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>C - Fundamentos</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>⚙️ C: Fundamentos e Controle de Fluxo</h1>
+    <p class="subtitle">Compilar e rodar seu primeiro programa, dominar tipos, operadores e controle de fluxo — C é pequena, rápida e não esconde nada.</p>
+
+    <!-- Seção 1: Primeiro Programa -->
+    <div class="section">
+        <h2>1. O Primeiro Programa</h2>
+        <pre><code>#include &lt;stdio.h&gt;   /* traz printf, scanf... */
+
+int main(void) {
+    printf("Hello, world!\n");
+    return 0;          /* 0 = sucesso para o SO */
+}</code></pre>
+        <pre><code>gcc -Wall -Wextra -o hello hello.c &amp;&amp; ./hello</code></pre>
+        <p><strong style="color:var(--success);">-Wall -Wextra</strong> liga os avisos — sempre. Aviso de compilador é professor grátis.</p>
+    </div>
+
+    <!-- Seção 2: Tipos e Variáveis -->
+    <div class="section">
+        <h2>2. Tipos e Variáveis</h2>
+        <table>
+            <tr><th>Tipo</th><th>Tamanho típico</th><th>Uso</th></tr>
+            <tr><td><code>int</code></td><td>4 bytes</td><td>inteiros</td></tr>
+            <tr><td><code>long</code></td><td>8 bytes</td><td>inteiros grandes</td></tr>
+            <tr><td><code>float</code> / <code>double</code></td><td>4 / 8 bytes</td><td>reais (prefira double)</td></tr>
+            <tr><td><code>char</code></td><td>1 byte</td><td>um caractere</td></tr>
+            <tr><td><code>_Bool</code> / <code>bool</code> (stdbool.h)</td><td>1 byte</td><td>verdadeiro/falso</td></tr>
+        </table>
+        <pre><code>int idade = 30;
+double pi = 3.14159;
+char letra = 'A';
+printf("%d %f %c\n", idade, pi, letra);
+/* %d int, %f double, %c char, %s string */</code></pre>
+    </div>
+
+    <!-- Seção 3: Operadores e Controle -->
+    <div class="section">
+        <h2>3. Operadores e Controle</h2>
+        <p><strong>Aritméticos:</strong> <code>+ - * / %</code> · <strong>Comparação:</strong> <code>== != &lt; &gt; &lt;= &gt;=</code> · <strong>Lógicos:</strong> <code>&amp;&amp; || !</code></p>
+        
+        <h3>if / else</h3>
+        <pre><code>if (nota &gt;= 90) printf("A\n");
+else if (nota &gt;= 70) printf("B\n");
+else printf("reprovado\n");</code></pre>
+
+        <h3>for</h3>
+        <pre><code>for (int i = 0; i &lt; 5; i++) printf("%d ", i);  /* 0 1 2 3 4 */</code></pre>
+
+        <h3>while</h3>
+        <pre><code>int n = 5, fat = 1;
+while (n &gt; 1) { fat *= n; n--; }  /* fat == 120 */</code></pre>
+
+        <h3>switch</h3>
+        <pre><code>switch (op) {
+    case '+': r = a + b; break;
+    case '-': r = a - b; break;
+    default: printf("op inválida\n");
+}</code></pre>
+
+        <h3>⚠️ As Três Pegadinhas Clássicas</h3>
+        <ul>
+            <li style="color:var(--danger);"><code>=</code> (atribui) dentro de <code>if</code> no lugar de <code>==</code> (compara)</li>
+            <li style="color:var(--danger);">Esquecer <code>break</code> no <code>switch</code></li>
+            <li style="color:var(--danger);"><code>scanf("%d", &amp;x)</code> exige o <code>&amp;</code> (endereço)</li>
+        </ul>
+    </div>
+
+    <!-- Seção 4: Operadores Bit a Bit -->
+    <div class="section">
+        <h2>4. Operadores Bit a Bit</h2>
+        <p>Operam nos bits individuais dos números — úteis para flags, compactação e performance.</p>
+        <table>
+            <tr><th>Operador</th><th>Exemplo</th><th>Resultado</th></tr>
+            <tr><td><code>&amp;</code> (AND)</td><td><code>5 &amp; 3</code></td><td><code>1</code> (0101 &amp; 0011 = 0001)</td></tr>
+            <tr><td><code>|</code> (OR)</td><td><code>5 | 3</code></td><td><code>7</code> (0101 | 0011 = 0111)</td></tr>
+            <tr><td><code>^</code> (XOR)</td><td><code>5 ^ 3</code></td><td><code>6</code> (0101 ^ 0011 = 0110)</td></tr>
+            <tr><td><code>~</code> (NOT)</td><td><code>~5</code></td><td><code>-6</code> (inverte todos os bits)</td></tr>
+            <tr><td><code>&lt;&lt;</code> (shift esq)</td><td><code>5 &lt;&lt; 1</code></td><td><code>10</code> (dobra)</td></tr>
+            <tr><td><code>&gt;&gt;</code> (shift dir)</td><td><code>5 &gt;&gt; 1</code></td><td><code>2</code> (divide por 2)</td></tr>
+        </table>
+        <pre><code>// Exemplo prático: flags
+#define READ   (1 &lt;&lt; 0)  // 0001
+#define WRITE  (1 &lt;&lt; 1)  // 0010
+#define EXEC   (1 &lt;&lt; 2)  // 0100
+
+int permissao = READ | WRITE;  // 0011
+if (permissao &amp; READ) printf("Pode ler\n");</code></pre>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Escreva um programa que lê um inteiro e diz se é par ou ímpar.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>if (n % 2 == 0) printf("par\n"); else printf("ímpar\n");</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Imprima a tabuada do 7 com um for.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>for (int i = 1; i &lt;= 10; i++) printf("7x%d=%d\n", i, 7*i);</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> FizzBuzz de 1 a 30: múltiplo de 3 → "Fizz", de 5 → "Buzz", de ambos → "FizzBuzz".</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Teste <code>% 15</code> primeiro (ou combine condições).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Em C, quanto vale <code>9 / 2</code> e <code>9 % 2</code>? E <code>9.0 / 2</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>4; 1; 4.5</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Leia notas até o usuário digitar -1 e imprima a média (while).</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Acumule soma e qtd no while; média = <code>(double)soma/qtd</code> — o cast evita divisão inteira.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> Qual o tipo correto para armazenar o caractere 'A'?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>char</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que significa <code>int x = 5 &lt;&lt; 2;</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>x = 20</code> (5 × 2² = 20)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> O que faz o operador <code>%</code> em C?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Resto da divisão (módulo).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> Como declarar uma variável <code>bool</code> em C?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>#include &lt;stdbool.h&gt;</code> e <code>bool flag = true;</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> Qual o tamanho de um <code>int</code> na maioria das arquiteturas modernas?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">4 bytes (32 bits)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que é <code>&&</code> em C?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Operador lógico AND ("E").</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> Como compilar um programa C com avisos ativados?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>gcc -Wall -Wextra -o programa programa.c</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> Qual a saída de <code>printf("%d", 10 &amp; 6);</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>2</code> (1010 &amp; 0110 = 0010)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> Qual a saída de <code>printf("%d", 10 | 6);</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>14</code> (1010 | 0110 = 1110)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é um <code>if</code> aninhado?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Um <code>if</code> dentro de outro <code>if</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> Como fazer um loop infinito em C?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>while(1) { }</code> ou <code>for(;;) { }</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> Qual o erro comum com <code>scanf</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Esquecer o <code>&amp;</code> antes da variável: <code>scanf("%d", &amp;x);</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> O que faz <code>break</code> dentro de um <code>switch</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Sai do <code>switch</code>, evitando "cair" no próximo caso.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que acontece se esquecer o <code>break</code> no <code>switch</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">O programa "cai" para o próximo case e o executa também.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> Como imprimir o valor de uma variável <code>double</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>printf("%f", x);</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é o <code>#include &lt;stdio.h&gt;</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Inclui a biblioteca padrão de entrada e saída (printf, scanf, etc).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> Qual a diferença entre <code>=</code> e <code>==</code> em C?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>=</code> é atribuição; <code>==</code> é comparação.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> Como declarar uma constante em C?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>const int MAX = 100;</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que retorna <code>main()</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Um inteiro (0 geralmente indica sucesso, diferente de 0 indica erro).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> Como ler um inteiro do usuário?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>scanf("%d", &amp;variavel);</code></span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

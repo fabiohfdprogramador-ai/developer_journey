@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Terraform</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>🏗️ Terraform e Infraestrutura como Código</h1>
+    <p class="subtitle">Sair do console: infraestrutura declarada, versionada e revisada em PR — com o modelo mental de estado que evita os acidentes clássicos.</p>
+
+    <!-- Seção 1: O Modelo -->
+    <div class="section">
+        <h2>1. O Modelo Mental</h2>
+        <ul>
+            <li><strong>Declarativo</strong>: você descreve o que quer, não como fazer</li>
+            <li><strong>State</strong>: mapeia o declarado → o real</li>
+            <li><strong>Providers</strong>: AWS, GCP, Azure, Kubernetes, etc.</li>
+            <li><strong>Resources</strong>: os componentes da infraestrutura</li>
+        </ul>
+        <pre><code>resource "aws_s3_bucket" "artifacts" {
+    bucket = "minhaempresa-artifacts"
+    tags = { team = "platform" }
+}
+
+resource "aws_db_instance" "app" {
+    engine = "postgres"
+    instance_class = "db.t4g.micro"
+    allocated_storage = 20
+}</code></pre>
+    </div>
+
+    <!-- Seção 2: Fluxo -->
+    <div class="section">
+        <h2>2. Fluxo</h2>
+        <pre><code>terraform init      # baixa providers e inicializa
+terraform plan      # mostra o que vai mudar (LEIA!)
+terraform apply     # aplica as mudanças
+terraform destroy   # destrói tudo (CUIDADO!)</code></pre>
+        <ul>
+            <li><strong>State remoto</strong> (S3 + DynamoDB lock) — nunca no laptop!</li>
+            <li><strong>Módulos</strong>: empacotam padrões reutilizáveis</li>
+            <li><strong>Workspaces/vars</strong>: separam dev/prod</li>
+        </ul>
+    </div>
+
+    <!-- Seção 3: Práticas -->
+    <div class="section">
+        <h2>3. Práticas</h2>
+        <ul>
+            <li>Quem clicou no console criou <strong>drift</strong> — mudança só por PR</li>
+            <li><strong>Plan no CI</strong>: denuncia divergências</li>
+            <li><strong>Least privilege</strong>: IAM com permissões mínimas</li>
+        </ul>
+        <p style="color:var(--warning);">💡 Sua missão AWS: recriar via Terraform o que você já usa (VPC, subnets, SGs, ECS/EKS, RDS, S3, IAM).</p>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Por que state remoto com lock é inegociável em time?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Dois applies simultâneos corrompem o mapa do mundo; lock serializa, remoto compartilha.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> O que um plan com "1 to destroy" inesperado indica e o que fazer?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Você está prestes a apagar algo real (renomeou recurso?); investigue antes do apply (moved blocks/import).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Alguém alterou um SG no console. Como o Terraform reage no próximo plan e como reconciliar?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Detecta drift e propõe reverter; ou você importa/ajusta o código para adotar a mudança — decisão consciente, em PR.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> O que é <strong>Terraform</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ferramenta de Infrastructure as Code (IaC) para criar e gerenciar infraestrutura.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> O que é <strong>HCL</strong> (HashiCorp Configuration Language)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Linguagem declarativa usada no Terraform para definir recursos.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> O que é <strong>state</strong> no Terraform?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Arquivo que mapeia os recursos declarados para os recursos reais na nuvem.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que é <strong>provider</strong> no Terraform?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Plugin que permite gerenciar recursos de um serviço (AWS, GCP, Azure, etc).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> O que é <strong>resource</strong> no Terraform?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Componente de infraestrutura que será criado (ex: EC2, S3, RDS).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que é <strong>module</strong> no Terraform?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Pacote reutilizável de recursos Terraform.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que é <strong>variable</strong> no Terraform?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Parâmetro de entrada para configurações, permite reuso e parametrização.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que é <strong>output</strong> no Terraform?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Valor de saída que pode ser usado por outros módulos ou exibido no console.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> O que é <strong>terraform init</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Comando que inicializa um diretório de trabalho Terraform e baixa providers.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que é <strong>terraform plan</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Comando que mostra as mudanças que serão aplicadas (execução dry-run).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>terraform apply</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Comando que aplica as mudanças descritas na configuração.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é <strong>terraform destroy</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Comando que destrói todos os recursos gerenciados pelo Terraform.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> O que é <strong>drift</strong> no contexto do Terraform?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Diferença entre o estado real e o estado declarado (causada por mudanças manuais).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que é <strong>state locking</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Mecanismo que impede múltiplos usuários de modificar o state simultaneamente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> O que é <strong>remote state</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">State armazenado remotamente (ex: S3) para compartilhamento e backup.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <strong>terraform workspace</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Mecanismo para gerenciar múltiplos ambientes (dev, staging, prod) com o mesmo código.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que é <strong>terraform import</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Comando que importa um recurso existente para o state do Terraform.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é <strong>terraform fmt</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Comando que formata arquivos Terraform no estilo padrão.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <strong>terraform validate</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Comando que valida a sintaxe das configurações Terraform.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que é <strong>data source</strong> no Terraform?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Permite consultar dados de recursos existentes (não gerenciados pelo Terraform).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que é <strong>lifecycle</strong> no Terraform?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Bloco que controla comportamento do ciclo de vida do recurso (create_before_destroy, prevent_destroy).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> O que é <strong>IaC</strong> (Infrastructure as Code)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Prática de gerenciar infraestrutura usando código em vez de processos manuais.</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

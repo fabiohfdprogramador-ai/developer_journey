@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Linux e Terminal</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>🐧 Linux e o Terminal — Sua Nova Casa</h1>
+    <p class="subtitle">Viva no terminal: navegue, manipule arquivos, entenda permissões e encadeie comandos.</p>
+
+    <!-- Seção 1: Navegação -->
+    <div class="section">
+        <h2>1. Navegação e Arquivos</h2>
+        <p>O Linux é um sistema operacional onde <strong>tudo é arquivo</strong> — configurações, dispositivos, processos. Os caminhos principais:</p>
+        <ul>
+            <li><code>/</code> — raiz do sistema</li>
+            <li><code>/home</code> — diretórios dos usuários</li>
+            <li><code>/etc</code> — arquivos de configuração</li>
+            <li><code>/var/log</code> — logs do sistema</li>
+            <li><code>/usr/bin</code> — programas executáveis</li>
+        </ul>
+
+        <h3>Comandos essenciais</h3>
+        <pre><code>pwd                         # onde estou
+ls -la                      # lista tudo com detalhes
+cd projetos                 # entra na pasta (cd .. sobe; cd ~ vai para home)
+mkdir -p app/src            # cria árvore de pastas
+cp a.txt b.txt              # copia (cp -r para pastas)
+mv b.txt notas.txt          # move/renomeia
+rm notas.txt                # remove (rm -r pasta/ - sem lixeira!)
+cat arquivo.txt             # mostra conteúdo
+less                        # para paginar
+head/tail                   # para pontas</code></pre>
+
+        <h3>💡 Dica de ouro</h3>
+        <p>Uma tarefa por dia que você faria no mouse, faça no terminal. Em 30 dias, o terminal deixa de ser obstáculo e vira alavanca.</p>
+    </div>
+
+    <!-- Seção 2: Permissões -->
+    <div class="section">
+        <h2>2. Permissões</h2>
+        <p><code>ls -l</code> mostra algo como <code>-rwxr-xr--</code>:</p>
+        <ul>
+            <li><strong>dono</strong>: ler/escrever/executar (rwx)</li>
+            <li><strong>grupo</strong>: ler/executar (r-x)</li>
+            <li><strong>outros</strong>: só ler (r--)</li>
+        </ul>
+
+        <h3>Modificando permissões</h3>
+        <pre><code>chmod +x script.sh          # torna executável
+chmod 644 config.txt        # rw- r-- r-- (6=rw, 4=r, 7=rwx)
+sudo comando                # executa como administrador</code></pre>
+
+        <table>
+            <tr><th>Número</th><th>Permissão</th></tr>
+            <tr><td>7</td><td>rwx (ler + escrever + executar)</td></tr>
+            <tr><td>6</td><td>rw- (ler + escrever)</td></tr>
+            <tr><td>5</td><td>r-x (ler + executar)</td></tr>
+            <tr><td>4</td><td>r-- (só ler)</td></tr>
+        </table>
+    </div>
+
+    <!-- Seção 3: Pipes e Redirecionamento -->
+    <div class="section">
+        <h2>3. Pipes e Redirecionamento — A Superpotência</h2>
+        <p>A saída de um comando vira entrada do próximo com <code>|</code>; <code>&gt;</code> grava em arquivo (<code>&gt;&gt;</code> anexa); <code>2&gt;</code> redireciona erros.</p>
+
+        <pre><code>cat access.log | grep "500" | wc -l   # quantas linhas com 500
+ps aux | grep node                   # processos do node
+history | tail -20                   # últimos 20 comandos
+sort nomes.txt | uniq -c | sort -rn > top.txt   # ranking de frequência</code></pre>
+    </div>
+
+    <!-- Seção 4: Script -->
+    <div class="section">
+        <h2>4. Seu Primeiro Script</h2>
+        <pre><code>#!/bin/bash
+# backup.sh - compacta uma pasta com data no nome
+set -euo pipefail
+ORIGEM=${1:?uso: backup.sh &lt;pasta&gt;}
+DESTINO="backup-$(date +%F).tgz"
+tar -czf "$DESTINO" "$ORIGEM"
+echo "OK: $DESTINO ($(du -sh "$DESTINO" | cut -f1))"</code></pre>
+        <p><code>chmod +x backup.sh && ./backup.sh projetos</code> — automação de verdade em 7 linhas.</p>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <!-- Exercício 1 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Crie a árvore <code>lab/{src,logs,backup}</code> com um único comando.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>mkdir -p lab/{src,logs,backup}</code></span>
+            </div>
+        </div>
+
+        <!-- Exercício 2 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Gere um arquivo com a lista de todos os <code>.md</code> do seu home.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>find ~ -name "*.md" &gt; lista.txt</code></span>
+            </div>
+        </div>
+
+        <!-- Exercício 3 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Conte quantos processos do seu usuário estão rodando agora.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>ps -u $USER | wc -l</code></span>
+            </div>
+        </div>
+
+        <!-- Exercício 4 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> O que significa a permissão 755 em um script? Escreva-a em <code>rwx</code>.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>rwxr-xr-x</code> — dono tudo; grupo e outros leem/executam.</span>
+            </div>
+        </div>
+
+        <!-- Exercício 5 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Encadeie: das 100 últimas linhas de um log, as que contêm "error", ordenadas, sem repetição.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>tail -100 app.log | grep error | sort | uniq</code></span>
+            </div>
+        </div>
+
+        <!-- Exercício 6 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> Modifique o backup.sh para aceitar o destino como 2º parâmetro opcional (padrão: diretório atual).</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>DEST_DIR=${2:-.} &amp;&amp; use "$DEST_DIR/$DESTINO" no tar.</code></span>
+            </div>
+        </div>
+
+        <!-- Exercício 7 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> Como ver o conteúdo de um arquivo grande paginado?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>less arquivo.txt</code> (ou <code>more</code>)</span>
+            </div>
+        </div>
+
+        <!-- Exercício 8 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> Como redirecionar a saída de erro de um comando para um arquivo?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>comando 2&gt; erros.txt</code></span>
+            </div>
+        </div>
+
+        <!-- Exercício 9 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> Qual o comando para ver as últimas 50 linhas de um arquivo de log?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>tail -50 arquivo.log</code></span>
+            </div>
+        </div>
+
+        <!-- Exercício 10 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> Como criar um arquivo vazio chamado <code>novo.txt</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>touch novo.txt</code></span>
+            </div>
+        </div>
+
+        <!-- Exercício 11 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> Como copiar uma pasta inteira com todo seu conteúdo?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>cp -r pasta_origem pasta_destino</code></span>
+            </div>
+        </div>
+
+        <!-- Exercício 12 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> Como listar todos os arquivos (inclusive ocultos) com detalhes?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>ls -la</code></span>
+            </div>
+        </div>
+
+        <!-- Exercício 13 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que faz o comando <code>chmod 644 config.txt</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Dá permissão <code>rw-r--r--</code>: dono lê/escreve, grupo e outros só leem.</span>
+            </div>
+        </div>
+
+        <!-- Exercício 14 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> Como ver o histórico dos comandos que você executou?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>history</code></span>
+            </div>
+        </div>
+
+        <!-- Exercício 15 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> Como exibir as primeiras 10 linhas de um arquivo?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>head -10 arquivo.txt</code></span>
+            </div>
+        </div>
+
+        <!-- Exercício 16 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> Como contar o número de linhas de um arquivo?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>wc -l arquivo.txt</code></span>
+            </div>
+        </div>
+
+        <!-- Exercício 17 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> Como mover um arquivo para outro diretório?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>mv arquivo.txt /caminho/destino/</code></span>
+            </div>
+        </div>
+
+        <!-- Exercício 18 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> Como remover uma pasta e todo seu conteúdo de forma recursiva?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>rm -r pasta/</code> (cuidado: sem lixeira!)</span>
+            </div>
+        </div>
+
+        <!-- Exercício 19 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> Como ver o caminho completo do diretório atual?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>pwd</code></span>
+            </div>
+        </div>
+
+        <!-- Exercício 20 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> Como buscar todos os arquivos <code>.conf</code> no sistema?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>find / -name "*.conf" 2&gt;/dev/null</code></span>
+            </div>
+        </div>
+
+        <!-- Exercício 21 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> Como contar quantas vezes a palavra "error" aparece em um log?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>grep -c "error" log.txt</code> ou <code>grep "error" log.txt | wc -l</code></span>
+            </div>
+        </div>
+
+        <!-- Exercício 22 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> Como ver os processos em execução ordenados por uso de CPU?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>ps aux --sort=-%cpu</code> ou <code>top</code> (pressione P)</span>
+            </div>
+        </div>
+
+        <!-- Exercício 23 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> Como matar um processo pelo PID?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>kill PID</code> (ou <code>kill -9 PID</code> para forçar)</span>
+            </div>
+        </div>
+
+        <!-- Exercício 24 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> Como ver o espaço em disco disponível?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>df -h</code></span>
+            </div>
+        </div>
+
+        <!-- Exercício 25 -->
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> Como ver o tamanho de um diretório e seus subdiretórios?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>du -sh pasta/</code></span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

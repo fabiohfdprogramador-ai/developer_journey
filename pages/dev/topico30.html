@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Projetos e Execução</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>🎯 Projetos, Biblioteca e os Primeiros 90 Dias</h1>
+    <p class="subtitle">Os projetos que provam domínio, a biblioteca canônica, a rotina semanal e os primeiros 90 dias — o plano de execução final.</p>
+
+    <!-- Seção 1: Os Projetos -->
+    <div class="section">
+        <h2>1. Os Projetos que Provam Domínio</h2>
+        <table>
+            <tr><th>Bloco</th><th>Projeto</th><th>Prova que você...</th></tr>
+            <tr><td>C</td><td>Mini-shell + biblioteca de estruturas (testes + Makefile)</td><td>domina ponteiros, memória e processos</td></tr>
+            <tr><td>Máquina</td><td>Servidor HTTP do zero em C</td><td>costura C + SO + redes</td></tr>
+            <tr><td>Dados</td><td>Esquema real com milhões de linhas + 5 queries otimizadas (EXPLAIN antes/depois)</td><td>pensa em dados como engenheiro</td></tr>
+            <tr><td>Backend</td><td>2 serviços com eventos, outbox, idempotência e OIDC</td><td>constrói o que empresas rodam</td></tr>
+            <tr><td>Go/Escala</td><td>Tudo acima em K8s via Terraform + CI/CD + OTel; KV replicado de brinquedo</td><td>opera e distribui</td></tr>
+            <tr><td>Maestria</td><td>Threat model + hardening; 1 otimização publicada com flamegraph; RFC de arquitetura</td><td>decide como sênior</td></tr>
+        </table>
+        <p style="color:var(--warning);">💡 Cada projeto: repositório público, README com <strong>decisões e porquês</strong>, e um post curto ensinando algo.</p>
+    </div>
+
+    <!-- Seção 2: A Biblioteca Canônica -->
+    <div class="section">
+        <h2>2. A Biblioteca Canônica (10 Livros > 100 Cursos)</h2>
+        <ol>
+            <li><strong>K&R</strong> — The C Programming Language</li>
+            <li><strong>CS:APP</strong> — Computer Systems: A Programmer's Perspective</li>
+            <li><strong>OSTEP</strong> — Operating Systems: Three Easy Pieces</li>
+            <li><strong>Skiena</strong> — The Algorithm Design Manual</li>
+            <li><strong>Kurose & Ross</strong> — Computer Networking</li>
+            <li><strong>Kleppmann</strong> — Designing Data-Intensive Applications</li>
+            <li><strong>Ousterhout</strong> — A Philosophy of Software Design</li>
+            <li><strong>Donovan & Kernighan</strong> — The Go Programming Language</li>
+            <li><strong>Google</strong> — Site Reliability Engineering</li>
+            <li><strong>Alex Xu</strong> — System Design Interview 1-2</li>
+        </ol>
+        <p style="color:var(--warning);">💡 CS:APP e DDIA são o par de maior retorno por hora do currículo.</p>
+    </div>
+
+    <!-- Seção 3: A Rotina Semanal -->
+    <div class="section">
+        <h2>3. A Rotina Semanal (2-3 h/dia)</h2>
+        <ul>
+            <li><strong>Seg-sex</strong>: 60-90 min do capítulo/livro do bloco + 30-60 min de projeto</li>
+            <li><strong>Sáb</strong>: sessão longa de projeto (2-3 h) + 30 min de algoritmos espaçados</li>
+            <li><strong>Dom</strong>: revisão espaçada da semana + 1 h de leitura de código ou paper + planejamento</li>
+        </ul>
+        <p style="color:var(--success);">✅ Descanso é parte do método.</p>
+    </div>
+
+    <!-- Seção 4: Primeiros 90 Dias -->
+    <div class="section">
+        <h2>4. Seus Primeiros 90 Dias</h2>
+        <table>
+            <tr><th>Semanas</th><th>Missão</th><th>Critério de conclusão</th></tr>
+            <tr><td>1-2</td><td>Ambiente: Linux no dia a dia, Git fluente, repositório journey criado</td><td>caps. 1-2 com exercícios ≥ 80%</td></tr>
+            <tr><td>3-8</td><td>C com K&R + caps. 3-7 (1 capítulo/semana; ponteiros com carinho extra)</td><td>exercícios feitos; swap e lista ligada explicados em voz alta</td></tr>
+            <tr><td>9-12</td><td>Projeto: mini-shell (fork, exec, pipes) com README</td><td>roda comandos, pipe simples funciona, post publicado</td></tr>
+        </table>
+        <p style="color:var(--danger);">⚠️ Paralelo (30 min/dia): Matemática discreta (cap. 8 + MIT 6.042): lógica e indução</p>
+    </div>
+
+    <!-- Seção 5: Os 6 Erros -->
+    <div class="section">
+        <h2>5. Os 6 Erros que Mantêm Devs Plenos para Sempre</h2>
+        <ul style="list-style:none; padding-left:0;">
+            <li style="color:var(--danger);">❌ <strong>Tutorial hell</strong> (assistir sem construir)</li>
+            <li style="color:var(--danger);">❌ <strong>Pular fundamentos</strong> para decorar YAML</li>
+            <li style="color:var(--danger);">❌ <strong>Colecionar linguagens</strong> sem dominar uma</li>
+            <li style="color:var(--danger);">❌ <strong>Estudar sem publicar</strong></li>
+            <li style="color:var(--danger);">❌ <strong>Ignorar o inglês</strong> (o teto chega rápido)</li>
+            <li style="color:var(--danger);">❌ <strong>Trocar de plano a cada hype</strong></li>
+        </ul>
+        <p style="color:var(--success);">✅ O antídoto único: este plano, rodando por anos, com portões medidos.</p>
+    </div>
+
+    <!-- Mensagem Final -->
+    <div class="section" style="border:2px solid var(--primary); text-align:center;">
+        <h2 style="color:var(--primary);">🚀 Sênior não é um cargo que se recebe — é um sistema que se constrói.</h2>
+        <p style="font-size:18px;">O seu começa no capítulo 1.</p>
+        <p style="color:var(--text-muted);">— Do Zero ao Sênior</p>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Qual o projeto do bloco C que prova domínio de ponteiros e processos?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Mini-shell + biblioteca de estruturas (testes + Makefile).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Qual o projeto do bloco Máquina que costura C + SO + redes?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Servidor HTTP do zero em C.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Qual o projeto do bloco Dados que prova que você pensa como engenheiro de dados?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Esquema real com milhões de linhas + 5 queries otimizadas com EXPLAIN.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Qual o projeto do bloco Backend que constrói o que empresas rodam?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">2 serviços com eventos, outbox, idempotência e OIDC.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Qual o projeto do bloco Maestria que prova que você decide como sênior?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Threat model + hardening; 1 otimização publicada com flamegraph; RFC de arquitetura.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> Quais são os 2 livros de maior retorno por hora do currículo?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">CS:APP (Computer Systems) e DDIA (Designing Data-Intensive Applications).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> Quantos livros compõem a biblioteca canônica?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">10 livros.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> Qual a rotina semanal recomendada de estudo (h/dia)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">2-3 horas por dia.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que fazer no domingo na rotina semanal?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Revisão espaçada da semana + 1 h de leitura de código/paper + planejamento.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> Qual a missão das semanas 1-2 dos primeiros 90 dias?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ambiente: Linux no dia a dia, Git fluente, repositório journey criado.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> Qual a missão das semanas 3-8 dos primeiros 90 dias?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">C com K&R + caps. 3-7 (1 capítulo/semana; ponteiros com carinho extra).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> Qual a missão das semanas 9-12 dos primeiros 90 dias?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Projeto: mini-shell (fork, exec, pipes) com README.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> Qual o estudo paralelo nos primeiros 90 dias?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Matemática discreta (cap. 8 + MIT 6.042): lógica e indução, 3 provas escritas por semana.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>tutorial hell</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Assistir cursos sem construir nada.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> Por que pular fundamentos é um erro?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ir direto para K8s sem SO e redes é decorar YAML; blocos A e B são o que barateia todo o resto.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> Por que colecionar linguagens é um erro?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Profundidade transfere; superficialidade não. C fundo, depois Go fundo.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> Por que estudar sem publicar é um erro?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Conhecimento invisível não gera oportunidade. GitHub ativo, posts e READMEs são seu currículo vivo.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> Por que ignorar o inglês é um erro?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">O teto de quem não lê docs e papers em inglês chega rápido.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <strong>portão de saída</strong> no roadmap?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Critério mensurável que prova que você dominou um bloco.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que deve conter cada projeto do roadmap?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Repositório público, README com decisões e porquês, e um post curto ensinando algo.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> Quem escreveu "A Philosophy of Software Design"?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">John Ousterhout.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> Quem escreveu "Designing Data-Intensive Applications"?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Martin Kleppmann.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> Qual a frase que encerra o livro "Do Zero ao Sênior"?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">"Sênior não é um cargo que se recebe — é um sistema que se constrói. O seu começa no capítulo 1."</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que é <strong>RFC</strong> em arquitetura de software?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Request for Comments — documento que propõe uma decisão de arquitetura para discussão.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> Qual a frase que encerra o livro "Inglês Fluente"?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">"Fluência não é um talento que se tem — é um hábito que se roda todos os dias com direção certa."</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

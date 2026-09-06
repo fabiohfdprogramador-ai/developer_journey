@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Sistemas Distribuídos</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>🌍 Sistemas Distribuídos — O Chão de Verdade</h1>
+    <p class="subtitle">As falácias da rede, CAP e consistência, replicação e particionamento, a ideia do Raft e os padrões event sourcing/CQRS — o vocabulário mínimo para projetar (e desconfiar) em escala.</p>
+
+    <!-- Seção 1: As Falácias -->
+    <div class="section">
+        <h2>1. As Falácias (A Rede NÃO é Confiável)</h2>
+        <ul>
+            <li>A rede <strong>falha</strong></li>
+            <li>Tem <strong>latência</strong></li>
+            <li>Muda de <strong>topologia</strong></li>
+            <li>Perde e <strong>duplica</strong> pacotes</li>
+        </ul>
+        <p><strong>Corolários de projeto:</strong></p>
+        <ul>
+            <li><strong>Timeout</strong> em tudo</li>
+            <li><strong>Retry com backoff + jitter</strong> (e idempotência, senão o retry vira arma)</li>
+            <li><strong>Circuit breaker</strong> para não afogar dependência doente</li>
+        </ul>
+        <p style="color:var(--warning);">💡 A pergunta-mestra: <strong>"o que acontece se esta chamada falhar no meio?"</strong></p>
+    </div>
+
+    <!-- Seção 2: CAP -->
+    <div class="section">
+        <h2>2. CAP e Consistência</h2>
+        <p>Numa <strong>partição de rede</strong> (P, que acontece), escolha:</p>
+        <ul>
+            <li><strong>Consistência</strong> (C): recusar responder para não mentir</li>
+            <li><strong>Availability</strong> (A): responder possivelmente desatualizado</li>
+        </ul>
+        <p>Na prática o dial é fino:</p>
+        <ul>
+            <li><strong>Consistência forte</strong>: leia o que acabou de escrever — saldo</li>
+            <li><strong>Eventual</strong>: converge depois — feed, catálogo, telemetria</li>
+        </ul>
+        <p>Escolha por <strong>operação</strong>, não por sistema.</p>
+    </div>
+
+    <!-- Seção 3: Replicação e Particionamento -->
+    <div class="section">
+        <h2>3. Replicação e Particionamento</h2>
+        
+        <h3>Replicação</h3>
+        <ul>
+            <li><strong>Líder</strong>: recebe escritas, réplicas seguem o log</li>
+            <li><strong>Síncrona</strong> = mais durável, mais lenta</li>
+            <li><strong>Assíncrona</strong> = rápida, com lag</li>
+            <li><strong>Failover</strong>: promover réplica — quem decide?</li>
+        </ul>
+
+        <h3>Particionamento (Sharding)</h3>
+        <ul>
+            <li>Dados demais para um nó → particione por <strong>hash</strong> ou <strong>faixa</strong> da chave</li>
+            <li>Novos problemas: <strong>hot partitions</strong>, rebalanceamento, consultas cruzando shards</li>
+            <li>Só particione quando os <strong>números mandarem</strong></li>
+        </ul>
+    </div>
+
+    <!-- Seção 4: Consenso -->
+    <div class="section">
+        <h2>4. Consenso — A Ideia do Raft</h2>
+        <ul>
+            <li>Para réplicas <strong>concordarem</strong> (quem é o líder? qual a ordem do log?)</li>
+            <li><strong>Raft</strong>: eleição por termos e maioria (<strong>quorum</strong>)</li>
+            <li>O líder replica entradas e só confirma o que a <strong>maioria</strong> gravou</li>
+            <li>Maioria de 3 = 2, de 5 = 3 → tolera <code>(n-1)/2</code> quedas</li>
+        </ul>
+        <p style="color:var(--warning);">💡 Leia o paper "In Search of an Understandable Consensus Algorithm" — foi escrito para ser legível.</p>
+    </div>
+
+    <!-- Seção 5: Event Sourcing e CQRS -->
+    <div class="section">
+        <h2>5. Event Sourcing e CQRS</h2>
+        
+        <h3>Event Sourcing</h3>
+        <ul>
+            <li>A verdade é a <strong>sequência de eventos</strong> (OrderCreated, OrderPaid...)</li>
+            <li>O estado atual é <strong>derivado</strong> (replay)</li>
+            <li>Ganhos: auditoria total, reconstrução, integração com Kafka</li>
+            <li>Custos: esquema de eventos evolui, snapshots, complexidade</li>
+        </ul>
+
+        <h3>CQRS</h3>
+        <ul>
+            <li>Separar <strong>escrita</strong> (comandos, consistente) de <strong>leitura</strong> (projeções desnormalizadas, rápidas)</li>
+            <li>Poderoso e caro — adote quando a <strong>dor for concreta</strong></li>
+        </ul>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Retry sem jitter derrubou a dependência que voltava do incidente. Explique (thundering herd) e corrija.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Todos os clientes re-tentam sincronizados na volta → pico mata de novo; backoff exponencial + jitter espalha.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Saldo bancário e contador de curtidas: que consistência para cada e por quê?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Saldo: forte (mentir custa dinheiro); curtidas: eventual (convergir depois é ok).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Réplica assíncrona com lag de 2 s: que anomalia o usuário pode ver e como mitigar?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Não ver a própria escrita; leia do líder após escrever (session stickiness) ou espere o lag.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Por que quorum de 5 nós é 3? O que 2 datacenters (2+2) não conseguem decidir?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Maioria estrita tolera 2 quedas; 2+2 empata sem maioria numa partição — por isso o 5º voto (árbitro) em outro lugar.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> No seu domínio, esboce 5 eventos de um agregado e o estado derivado deles.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">livre — critério: eventos no passado, imutáveis; estado = fold(events).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> O que é um <strong>sistema distribuído</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Sistema onde componentes estão em máquinas diferentes e se comunicam via rede.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que é o <strong>CAP Theorem</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Teorema que afirma que um sistema distribuído não pode garantir simultaneamente: Consistência, Disponibilidade e Tolerância a Partições.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> O que é <strong>consistência forte</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Todas as leituras veem a versão mais recente dos dados.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que é <strong>consistência eventual</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">O sistema se tornará consistente eventualmente, mas não imediatamente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que é <strong>replicação</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Cópia dos dados em múltiplos nós para redundância e disponibilidade.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que é <strong>sharding</strong> (particionamento)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Divisão horizontal dos dados entre múltiplos nós.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> O que é <strong>Raft</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Algoritmo de consenso distribuído (mais fácil que Paxos).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que é <strong>quorum</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Número mínimo de nós necessários para tomar uma decisão.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>Event Sourcing</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Padrão onde a verdade é a sequência de eventos, e o estado é derivado.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é <strong>CQRS</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Command Query Responsibility Segregation: separação dos caminhos de escrita e leitura.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> O que é <strong>circuit breaker</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Padrão que interrompe chamadas a um serviço que está falhando para evitar sobrecarga.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que é <strong>retry com backoff</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Padrão onde tentativas falhas são repetidas com tempo de espera crescente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> O que é <strong>jitter</strong> em retries?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Variação aleatória no tempo de espera para evitar thundering herd.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <strong>thundering herd</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quando muitos clientes tentam se reconectar simultaneamente após uma falha, causando um pico.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que é <strong>split brain</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Situação onde dois nós acreditam ser o líder em um sistema distribuído.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é <strong>idempotência</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Propriedade onde a operação pode ser repetida sem efeitos colaterais diferentes.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <strong>exactly-once</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Garantia que uma mensagem é processada exatamente uma vez (na prática = at-least-once + idempotência).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que é <strong>at-least-once</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Garantia que a mensagem será entregue pelo menos uma vez (pode ter duplicatas).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que é <strong>at-most-once</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Garantia que a mensagem será entregue no máximo uma vez (pode ser perdida).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> O que é <strong>consenso</strong> em sistemas distribuídos?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Processo onde múltiplos nós chegam a um acordo sobre um valor ou decisão.</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

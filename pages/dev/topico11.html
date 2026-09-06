@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Estruturas de Dados</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>🌳 Estruturas de Dados — Implementadas do Zero</h1>
+    <p class="subtitle">As estruturas fundamentais com implementação em C: array dinâmico, lista ligada, pilha, fila, hash table, árvore binária de busca, heap e grafo.</p>
+
+    <!-- Seção 1: Tabela de Custos -->
+    <div class="section">
+        <h2>1. A Tabela de Custos</h2>
+        <table>
+            <tr><th>Estrutura</th><th>Acesso</th><th>Busca</th><th>Inserção</th><th>Remoção</th><th>Brilha em</th></tr>
+            <tr><td>Array</td><td>O(1)</td><td>O(n)</td><td>O(n)</td><td>O(n)</td><td>acesso por índice, cache</td></tr>
+            <tr><td>Array ordenado</td><td>O(1)</td><td>O(log n)</td><td>O(n)</td><td>O(n)</td><td>busca binária</td></tr>
+            <tr><td>Lista ligada</td><td>O(n)</td><td>O(n)</td><td>O(1)</td><td>O(1)</td><td>inserir/remover nas pontas</td></tr>
+            <tr><td>Pilha / Fila</td><td>topo/frente O(1)</td><td>—</td><td>O(1)</td><td>O(1)</td><td>LIFO / FIFO</td></tr>
+            <tr><td>Hash table</td><td>—</td><td>O(1) méd.</td><td>O(1) méd.</td><td>O(1) méd.</td><td>dicionários, caches</td></tr>
+            <tr><td>BST balanceada</td><td>—</td><td>O(log n)</td><td>O(log n)</td><td>O(log n)</td><td>dados ordenados dinâmicos</td></tr>
+            <tr><td>Heap</td><td>topo O(1)</td><td>—</td><td>O(log n)</td><td>O(log n)</td><td>prioridade, top-k</td></tr>
+        </table>
+    </div>
+
+    <!-- Seção 2: Lista Ligada -->
+    <div class="section">
+        <h2>2. Lista Ligada</h2>
+        <pre><code>typedef struct No {
+    int valor;
+    struct No *prox;
+} No;
+
+No *push_front(No *head, int v) {
+    No *n = malloc(sizeof *n);
+    n->valor = v;
+    n->prox = head;
+    return n;
+}
+
+int busca(No *head, int v) {
+    for (No *p = head; p; p = p->prox)
+        if (p->valor == v) return 1;
+    return 0;
+}
+
+void libera(No *head) {
+    while (head) {
+        No *t = head->prox;
+        free(head);
+        head = t;
+    }
+}</code></pre>
+        <ul>
+            <li><strong>Array</strong> = bloco contíguo (cache adora, inserir no meio dói)</li>
+            <li><strong>Lista</strong> = nós espalhados ligados por ponteiros (inserir é religar setas, mas cada salto é um cache miss)</li>
+        </ul>
+    </div>
+
+    <!-- Seção 3: Pilha e Fila -->
+    <div class="section">
+        <h2>3. Pilha e Fila</h2>
+        <h3>Pilha (LIFO)</h3>
+        <pre><code>typedef struct {
+    int *dados;
+    int topo;
+    int capacidade;
+} Pilha;
+
+void push(Pilha *p, int v) {
+    p->dados[++p->topo] = v;
+}
+
+int pop(Pilha *p) {
+    return p->dados[p->topo--];
+}</code></pre>
+        <p>Usos: undo, call stack, parser de parênteses.</p>
+
+        <h3>Fila (FIFO)</h3>
+        <pre><code>typedef struct {
+    int *dados;
+    int ini, fim;
+    int capacidade;
+} Fila;
+
+void enqueue(Fila *f, int v) {
+    f->dados[f->fim++] = v;
+    f->fim %= f->capacidade;  /* circular */
+}
+
+int dequeue(Fila *f) {
+    int v = f->dados[f->ini++];
+    f->ini %= f->capacidade;
+    return v;
+}</code></pre>
+        <p>Usos: filas de tarefas, BFS, mensageria.</p>
+    </div>
+
+    <!-- Seção 4: Hash Table -->
+    <div class="section">
+        <h2>4. Hash Table — O Dicionário O(1)</h2>
+        <pre><code>#define CAP 1024
+
+typedef struct Par {
+    char chave[32];
+    int valor;
+    struct Par *prox;
+} Par;
+
+Par *tabela[CAP];
+
+unsigned hash(const char *s) {
+    unsigned h = 5381;
+    while (*s) h = h * 33 + (unsigned char)*s++;
+    return h % CAP;
+}</code></pre>
+        <ul>
+            <li>Colisões resolvidas por <strong>encadeamento</strong> (cada bucket é uma listinha)</li>
+            <li>Com bom hash e fator de carga controlado → <strong>O(1)</strong> em média</li>
+            <li>Casa dos pombos garante colisões; o design as torna raras e baratas</li>
+        </ul>
+    </div>
+
+    <!-- Seção 5: Árvore Binária de Busca -->
+    <div class="section">
+        <h2>5. Árvore Binária de Busca (BST)</h2>
+        <pre><code>typedef struct NoA {
+    int v;
+    struct NoA *esq, *dir;
+} NoA;
+
+NoA *inserir(NoA *r, int v) {
+    if (!r) {
+        r = malloc(sizeof *r);
+        r->v = v;
+        r->esq = r->dir = NULL;
+        return r;
+    }
+    if (v < r->v) r->esq = inserir(r->esq, v);
+    else r->dir = inserir(r->dir, v);
+    return r;
+}</code></pre>
+        <ul>
+            <li><strong>BST</strong>: menores à esquerda, maiores à direita → busca desce um ramo</li>
+            <li><strong>Balanceada</strong> (AVL/rubro-negra): altura = <code>O(log n)</code></li>
+            <li><strong>Percursos</strong>: em-ordem (sai ordenado!), pré-ordem, pós-ordem</li>
+        </ul>
+    </div>
+
+    <!-- Seção 6: Heap e Grafos -->
+    <div class="section">
+        <h2>6. Heap e Grafos</h2>
+        <h3>Heap (Fila de Prioridade)</h3>
+        <ul>
+            <li>Árvore quase completa em array</li>
+            <li>Filhos de i: <code>2i+1</code> e <code>2i+2</code></li>
+            <li>Pai ≥ filhos (max-heap)</li>
+            <li>Topo <code>O(1)</code>; inserir/remover <code>O(log n)</code></li>
+        </ul>
+
+        <h3>Grafos — Representação</h3>
+        <ul>
+            <li><strong>Lista de adjacência</strong>: espaço <code>O(V+E)</code>, padrão para grafos esparsos</li>
+            <li><strong>Matriz V×V</strong>: aresta em <code>O(1)</code>, espaço <code>O(V²)</code></li>
+        </ul>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Implemente <code>No *remove_valor(No *head, int v)</code> na lista ligada.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Caso especial se <code>head->valor == v</code> (retorne <code>head->prox</code> após free); senão ande com <code>p->prox</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Valide parênteses/colchetes/chaves de uma expressão com uma pilha.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Abre → push; fecha → pop e confira o par; fim: pilha vazia.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Por que a fila circular usa <code>% capacidade</code>? O que quebra sem isso?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Reusar o espaço do início; sem o módulo, <code>fim</code> estoura o array com a fila meio vazia.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Insira 5, 3, 8, 1, 4 numa BST e escreva o percurso em-ordem. O que você nota?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>1 3 4 5 8</code> — em-ordem sai ordenado.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Num sistema de cache chave→valor com milhões de consultas/s, qual estrutura e por quê?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Hash table: <code>O(1)</code> médio por operação.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> Quando uma BST degenera em lista? Qual o custo de busca nesse caso?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Inserção já ordenada (1,2,3,...) → altura n → busca <code>O(n)</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> Qual a diferença entre pilha e fila?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Pilha: LIFO (último a entrar, primeiro a sair); Fila: FIFO (primeiro a entrar, primeiro a sair).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> Qual a complexidade de inserir no início de uma lista ligada?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(1)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> Qual a complexidade de acessar o elemento do meio de uma lista ligada?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> Qual a complexidade de buscar em uma hash table bem projetada?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(1)</code> em média</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que é uma <strong>colisão</strong> em hash table?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quando duas chaves diferentes produzem o mesmo índice de hash.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> Quais são as duas formas principais de resolver colisões em hash table?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Encadeamento (listas ligadas) e endereçamento aberto (linear probing).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> Qual a estrutura de dados usada para implementar <strong>undo/redo</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Pilha (LIFO).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> Qual a estrutura de dados usada para implementar uma <strong>fila de impressão</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Fila (FIFO).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é <strong>fator de carga</strong> em uma hash table?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>número de elementos / capacidade</code>. Normalmente mantido abaixo de 0.75.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> Qual a complexidade de inserção em uma árvore AVL?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(log n)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> Qual a diferença entre <strong>árvore binária</strong> e <strong>árvore binária de busca</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">BST tem a propriedade de ordenação: valores à esquerda < raiz < valores à direita.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> Qual estrutura é melhor para um <strong>cache LRU</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Hash table + lista duplamente ligada (para manter ordem de uso).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <strong>grafo direcionado</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Grafo onde as arestas têm direção (sentido).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que é <strong>grafo não-direcionado</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Grafo onde as arestas não têm direção.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> Qual a complexidade de inserir no meio de uma lista ligada (dado o nó anterior)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(1)</code> (com o ponteiro para o nó anterior)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> Qual a complexidade de inserir no meio de um array?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n)</code> (desloca elementos)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que é <strong>árvore rubro-negra</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Árvore binária de busca auto-balanceada (usada em Java TreeMap, C++ std::map).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> Qual estrutura de dados é usada no algoritmo de Dijkstra para prioridade?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Heap (fila de prioridade).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> Qual a complexidade de espaço de uma lista de adjacência para um grafo com V vértices e E arestas?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(V + E)</code></span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

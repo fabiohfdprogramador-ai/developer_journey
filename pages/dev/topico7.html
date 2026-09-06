@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Structs e Memória</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>🏗️ Structs, Memória Dinâmica e Compilação</h1>
+    <p class="subtitle">Modelar dados com struct, dominar malloc/free (stack × heap) e entender o pipeline de compilação com Makefile.</p>
+
+    <!-- Seção 1: Structs -->
+    <div class="section">
+        <h2>1. Structs</h2>
+        <pre><code>typedef struct {
+    char nome[32];
+    int idade;
+    double saldo;
+} Conta;
+
+Conta c = { "Ana", 30, 1500.0 };
+c.saldo += 100;
+
+void deposita(Conta *ct, double v) {  /* structs grandes: por ponteiro */
+    ct->saldo += v;   /* -> é (*ct).saldo */
+}</code></pre>
+        <ul>
+            <li><strong>typedef</strong> cria um alias para o tipo</li>
+            <li><strong>→</strong> (seta) acessa membros via ponteiro</li>
+            <li><strong>.</strong> (ponto) acessa membros diretamente</li>
+        </ul>
+    </div>
+
+    <!-- Seção 2: Stack × Heap -->
+    <div class="section">
+        <h2>2. Stack × Heap e malloc/free</h2>
+        <table>
+            <tr><th></th><th>Stack</th><th>Heap</th></tr>
+            <tr><td><strong>Alocação</strong></td><td>automática (variáveis locais)</td><td>manual: malloc</td></tr>
+            <tr><td><strong>Vida útil</strong></td><td>até a função retornar</td><td>até você dar free</td></tr>
+            <tr><td><strong>Tamanho</strong></td><td>pequeno (MBs)</td><td>grande (GBs)</td></tr>
+            <tr><td><strong>Velocidade</strong></td><td>muito rápida</td><td>mais lenta</td></tr>
+        </table>
+
+        <pre><code>#include &lt;stdlib.h&gt;
+
+int *v = malloc(n * sizeof *v);  /* n ints no heap */
+if (!v) { perror("malloc"); return 1; }
+
+for (int i = 0; i &lt; n; i++) v[i] = i * i;
+
+free(v);   /* SEMPRE. v agora é inválido */
+v = NULL;  /* higiene contra uso pós-free */</code></pre>
+
+        <p style="color:var(--danger);">⚠️ Regras:</p>
+        <ul>
+            <li style="color:var(--danger);">Todo <code>malloc</code> tem exatamente um <code>free</code></li>
+            <li style="color:var(--danger);">Usar após <code>free</code> = comportamento indefinido</li>
+            <li style="color:var(--danger);">Perder o ponteiro sem <code>free</code> = <strong>vazamento de memória</strong></li>
+        </ul>
+
+        <h3>Valgrind — O Juiz</h3>
+        <pre><code>valgrind --leak-check=full ./programa</code></pre>
+        <p>Aponta vazamentos e acessos inválidos com linha e tudo.</p>
+    </div>
+
+    <!-- Seção 3: Compilação -->
+    <div class="section">
+        <h2>3. Do .c ao Executável</h2>
+        <p><code>gcc -o app main.c util.c</code> esconde 4 fases:</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; margin:12px 0;">
+            <div style="background:var(--bg-dark); padding:12px; border-radius:8px; text-align:center; border:1px solid var(--border);">
+                <strong>Pré-processador</strong>
+                <p style="font-size:12px; margin-top:4px;">Expande #include/#define</p>
+            </div>
+            <div style="background:var(--bg-dark); padding:12px; border-radius:8px; text-align:center; border:1px solid var(--border);">
+                <strong>Compilador</strong>
+                <p style="font-size:12px; margin-top:4px;">C → Assembly</p>
+            </div>
+            <div style="background:var(--bg-dark); padding:12px; border-radius:8px; text-align:center; border:1px solid var(--border);">
+                <strong>Assembler</strong>
+                <p style="font-size:12px; margin-top:4px;">Assembly → Objeto .o</p>
+            </div>
+            <div style="background:var(--bg-dark); padding:12px; border-radius:8px; text-align:center; border:1px solid var(--border);">
+                <strong>Linker</strong>
+                <p style="font-size:12px; margin-top:4px;">Juntar .o → Executável</p>
+            </div>
+        </div>
+        <p style="color:var(--warning);">💡 "undefined reference" é erro de <strong>link</strong>, não de compilação.</p>
+    </div>
+
+    <!-- Seção 4: Makefile -->
+    <div class="section">
+        <h2>4. Makefile Mínimo que Escala</h2>
+        <pre><code>CC = gcc
+CFLAGS = -Wall -Wextra -g
+
+app: main.o util.o
+    $(CC) $(CFLAGS) -o app main.o util.o
+
+%.o: %.c util.h
+    $(CC) $(CFLAGS) -c $&lt;
+
+clean:
+    rm -f app *.o</code></pre>
+        <p><code>make</code> recompila só o que mudou (compara datas).</p>
+        <p><code>-g</code> embute símbolos para o <strong>gdb</strong>:</p>
+        <pre><code>gdb ./app
+break main
+run
+next
+print var</code></pre>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Modele <code>typedef struct { double x, y; } Ponto;</code> e escreva <code>double dist(Ponto a, Ponto b)</code>.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>sqrt((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y))</code> (linke com -lm)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Aloque um array de 1000 doubles no heap, preencha com 0.5 e libere. Onde entra a checagem de erro?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>double *v = malloc(1000 * sizeof *v);</code> — cheque <code>if (!v)</code> antes de usar; <code>free(v)</code> ao fim.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Cite dois bugs que o Valgrind pega e um que o compilador pega.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Valgrind: vazamento, uso após free / fora dos limites no heap; compilador: variável não usada, tipos incompatíveis (com -Wall).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> No Makefile acima, o que acontece ao tocar só o <code>util.c</code>? E só o <code>util.h</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Só util.o e o link refazem; tocar util.h refaz todos os .o que dependem dele.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> "undefined reference to 'soma'": em que fase quebrou e quais as causas prováveis?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Link: faltou compilar/linkar o .c que define soma, ou o nome difere do protótipo.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> O que é <strong>memory leak</strong> (vazamento de memória)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quando a memória alocada no heap não é liberada, mesmo após não ser mais necessária.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que faz <code>realloc</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Redimensiona um bloco de memória previamente alocado.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> Qual a diferença entre <code>calloc</code> e <code>malloc</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>calloc</code> inicializa a memória com zeros; <code>malloc</code> não.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que é <strong>dangling pointer</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ponteiro que aponta para memória já liberada (após free).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que o <strong>linker</strong> faz?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Junta os arquivos objeto (.o) e bibliotecas para criar o executável final.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> Qual a saída do comando <code>make clean</code> no Makefile exemplo?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Remove <code>app</code> e todos os arquivos <code>.o</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> Como acessar um membro de struct via ponteiro?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Usando <code>-></code> (seta): <code>ptr->membro</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que é <strong>alinhamento de memória</strong> (memory alignment)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Organização dos dados na memória para otimizar acesso da CPU. Structs podem ter padding entre campos.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>padding</strong> em structs?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Espaços vazios inseridos pelo compilador entre membros da struct para alinhamento.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que faz a flag <code>-g</code> no gcc?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Inclui informações de depuração no executável (para usar com gdb).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> Como compilar múltiplos arquivos .c com gcc?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>gcc -o programa arquivo1.c arquivo2.c</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que é uma <strong>biblioteca estática</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Código compilado que é incorporado ao executável no momento da linkagem (.a).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> O que é uma <strong>biblioteca dinâmica</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Código compilado carregado em tempo de execução (.so no Linux, .dll no Windows).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> Como usar o <strong>gdb</strong> para debugar?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Compile com <code>-g</code>, execute <code>gdb ./programa</code>, use <code>break</code>, <code>run</code>, <code>next</code>, <code>print</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que o <strong>pré-processador</strong> faz?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Processa diretivas como <code>#include</code>, <code>#define</code>, <code>#ifdef</code> antes da compilação.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> Qual a diferença entre <code>#include "arquivo.h"</code> e <code>#include &lt;arquivo.h&gt;</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>" "</code> busca no diretório atual; <code>&lt; &gt;</code> busca em diretórios do sistema.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <code>typedef</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Cria um alias (apelido) para um tipo de dado existente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> Como alocar memória para uma struct no heap?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>MinhaStruct *p = malloc(sizeof(MinhaStruct));</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que acontece se você fizer <code>free(p)</code> e depois <code>p->membro</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Comportamento indefinido (uso após free).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> Qual a sintaxe para declarar uma <strong>union</strong> em C?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>union { int i; float f; } u;</code> — todos os membros compartilham o mesmo espaço de memória.</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Observabilidade</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>📊 Observabilidade — Enxergar o Sistema</h1>
+    <p class="subtitle">Os 3 pilares (métricas, logs, traces), os métodos RED/USE, e SLI/SLO com error budget — confiabilidade tratada com números, não com adrenalina.</p>
+
+    <!-- Seção 1: Os Três Pilares -->
+    <div class="section">
+        <h2>1. Os Três Pilares</h2>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin:12px 0;">
+            <div style="background:var(--bg-dark); padding:16px; border-radius:8px; border-left:3px solid var(--primary);">
+                <h4 style="color:var(--primary);">📈 Métricas</h4>
+                <p style="font-size:14px;">Números agregados no tempo — baratas, para alertar e ver tendência. Prometheus.</p>
+            </div>
+            <div style="background:var(--bg-dark); padding:16px; border-radius:8px; border-left:3px solid var(--secondary);">
+                <h4 style="color:var(--secondary);">📋 Logs</h4>
+                <p style="font-size:14px;">Eventos com contexto — para investigar o caso específico. Sempre com trace_id.</p>
+            </div>
+            <div style="background:var(--bg-dark); padding:16px; border-radius:8px; border-left:3px solid var(--success);">
+                <h4 style="color:var(--success);">🔍 Traces</h4>
+                <p style="font-size:14px;">A jornada de UMA requisição pelos serviços — onde os 800 ms se esconderam. OpenTelemetry.</p>
+            </div>
+        </div>
+        <p style="color:var(--warning);">💡 Instrumente com OTel uma vez, exporte para o backend que quiser — padrão aberto.</p>
+    </div>
+
+    <!-- Seção 2: O Que Medir -->
+    <div class="section">
+        <h2>2. O Que Medir</h2>
+        
+        <h3>RED (serviços)</h3>
+        <ul>
+            <li><strong>R</strong>ate: req/s</li>
+            <li><strong>E</strong>rrors: % de erros</li>
+            <li><strong>D</strong>uration: latência por percentil (p50/p95/p99)</li>
+        </ul>
+
+        <h3>USE (recursos)</h3>
+        <ul>
+            <li><strong>U</strong>tilization: uso (%)</li>
+            <li><strong>S</strong>aturation: fila/espera</li>
+            <li><strong>E</strong>rrors: falhas</li>
+        </ul>
+        <p>Dashboard bom responde "está saudável?" em 5 segundos.</p>
+    </div>
+
+    <!-- Seção 3: SLI, SLO e Error Budget -->
+    <div class="section">
+        <h2>3. SLI, SLO e Error Budget</h2>
+        <ul>
+            <li><strong>SLI</strong>: o indicador medido (ex.: % de requisições < 300 ms e sem 5xx)</li>
+            <li><strong>SLO</strong>: a meta (99,9% no mês)</li>
+            <li><strong>Error budget</strong>: 100% – SLO = quanto pode falhar (99,9% = ~43 min/mês)</li>
+        </ul>
+        <p style="color:var(--warning);">💡 Orçamento sobrando: acelere features; estourando: pare e pague confiabilidade.</p>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> p50 = 80 ms e p99 = 2 s: o que isso diz que a média esconderia?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">1% dos usuários sofre 25× a latência típica — cauda longa invisível na média.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Monte o RED de um endpoint de checkout (métricas concretas + 1 alerta).</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">rate por status, taxa de 5xx, histograma de duração; alerta: erro > 1% por 5 min.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> SLO 99,5%/mês: qual o error budget em minutos (~30 dias)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">0,5% de 43.200 min ≈ 216 min</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Por que "CPU > 80%" costuma ser alerta ruim e "p95 > 500 ms por 10 min" costuma ser bom?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">CPU alta pode ser saudável (throughput!); latência de usuário é sintoma real.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Qual pilar te leva do sintoma ("checkout lento") ao culpado ("consulta X no serviço Y")?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Tracing (com trace_id ligando logs).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> O que é <strong>observabilidade</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Capacidade de entender o estado interno de um sistema a partir de seus outputs (métricas, logs, traces).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que é <strong>métrica</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Dado numérico agregado ao longo do tempo (ex: requisições por segundo).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> O que é <strong>log</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Evento discreto com timestamp e contexto.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que é <strong>trace</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Jornada completa de uma requisição através de múltiplos serviços.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que é <strong>Prometheus</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Sistema de monitoramento e alerta com coleta de métricas por scraping.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que é <strong>Grafana</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ferramenta de visualização de dados (dashboards).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> O que é <strong>OpenTelemetry</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Framework de observabilidade para coletar métricas, logs e traces.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que é <strong>SLI</strong> (Service Level Indicator)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Métrica que indica o nível de serviço (ex: latência, disponibilidade).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>SLO</strong> (Service Level Objective)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Meta para o SLI (ex: 99,9% de disponibilidade).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é <strong>error budget</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quantidade de falhas permitida dentro do SLO.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> O que é <strong>percentil</strong> (p50, p95, p99)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Valor abaixo do qual X% das observações se encontram (p95 = 95% são menores que esse valor).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que é <strong>RED method</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Método para monitorar serviços: Rate, Errors, Duration.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> O que é <strong>USE method</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Método para monitorar recursos: Utilization, Saturation, Errors.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <strong>alerta</strong> em observabilidade?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Notificação acionada quando uma métrica ultrapassa um limite.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que é <strong>dashboard</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Tela com visualizações das métricas do sistema.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é <strong>trace_id</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Identificador único que correlaciona logs e traces de uma requisição.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <strong>log structured</strong> (log estruturado)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Logs em formato estruturado (JSON) para facilitar busca e análise.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que é <strong>latência</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Tempo de resposta de uma requisição.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que é <strong>throughput</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quantidade de requisições processadas por unidade de tempo.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> O que é <strong>availabilty</strong> (disponibilidade)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Percentual de tempo que o sistema está operacional.</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

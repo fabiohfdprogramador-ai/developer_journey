@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Sistemas Operacionais</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>🖥️ Sistemas Operacionais</h1>
+    <p class="subtitle">Processos e threads, memória virtual e concorrência (race conditions e deadlocks) — o que está por trás de containers, event loops e daquele OOMKilled do Kubernetes.</p>
+
+    <!-- Seção 1: Processos -->
+    <div class="section">
+        <h2>1. Processos</h2>
+        <p>Um <strong>processo</strong> = programa em execução: memória própria (código, dados, heap, stack), descritores de arquivo, PID.</p>
+        <ul>
+            <li>O kernel alterna processos na CPU milhares de vezes por segundo (<strong>escalonamento preemptivo</strong>)</li>
+            <li>Criar processo: <code>fork()</code> (clona o atual) + <code>exec()</code> (substitui pelo novo programa)</li>
+            <li>Sinais: <code>kill -TERM pid</code> pede para terminar; <code>-KILL</code> não pede</li>
+        </ul>
+        <p><strong>Ferramentas</strong>: <code>ps aux</code>, <code>top</code>, <code>strace ./app</code> (todas syscalls do programa).</p>
+    </div>
+
+    <!-- Seção 2: Threads -->
+    <div class="section">
+        <h2>2. Threads e o Porquê do Async</h2>
+        <ul>
+            <li><strong>Threads</strong>: dividem a memória do processo (baratas de criar, comunicação trivial — e perigosa)</li>
+            <li><strong>Event loop</strong> (Node.js): 1 thread + I/O não bloqueante — ótimo para muitas conexões esperando rede, ruim para CPU pesada</li>
+            <li><strong>Goroutines</strong> (Go): milhares de "threads leves" multiplexadas em poucas threads reais</li>
+        </ul>
+    </div>
+
+    <!-- Seção 3: Memória Virtual -->
+    <div class="section">
+        <h2>3. Memória Virtual</h2>
+        <p>Cada processo enxerga um espaço de endereços próprio e contínuo — mentira útil mantida pelo <strong>kernel + MMU</strong>.</p>
+        <ul>
+            <li><strong>Page fault</strong>: carrega páginas sob demanda</li>
+            <li><strong>Swap</strong>: empurra páginas frias para disco (latência explode)</li>
+            <li><strong>OOM killer</strong>: sem memória, o kernel mata alguém</li>
+        </ul>
+        <p style="color:var(--danger);">⚠️ Processo isolado: um processo não lê a memória do outro.</p>
+    </div>
+
+    <!-- Seção 4: Concorrência -->
+    <div class="section">
+        <h2>4. Concorrência — A Race Condition</h2>
+        <pre><code>/* duas threads executam: contador++; */
+/* contador++ é na verdade: LER → SOMAR 1 → ESCREVER */</code></pre>
+        <p>Duas threads leem 5 ao mesmo tempo, ambas escrevem 6 — um incremento se perde. Isso é uma <strong>race condition</strong>.</p>
+
+        <h3>Mutex — Exclusão Mútua</h3>
+        <pre><code>pthread_mutex_lock(&m);
+contador++;  /* só uma thread por vez aqui */
+pthread_mutex_unlock(&m);</code></pre>
+
+        <h3>Deadlock</h3>
+        <p>T1 segura A e quer B; T2 segura B e quer A — ninguém anda.</p>
+        <p style="color:var(--warning);">💡 Prevenção: todos adquirem locks na <strong>mesma ordem</strong>.</p>
+        <p><strong>Ferramentas</strong>: sanitizers (<code>-fsanitize=thread</code>) e, em Go, <code>-race</code>.</p>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Processo x thread: memória, custo de criação, riscos.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Processo: memória isolada, criação cara, seguro; thread: memória compartilhada, barata, sujeita a races.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> O que <code>fork()</code> retorna no pai e no filho? Como o shell usa isso?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">PID do filho no pai; 0 no filho — o shell faz fork, o filho dá exec no comando, o pai espera (wait).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Seu Node trava ao calcular um hash pesado. Explique com o modelo do event loop.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">CPU pesada na única thread bloqueia todos os callbacks pendentes.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Duas threads fazem <code>x = x + 1</code> 1000 vezes cada, sem lock. Por que o resultado pode ser < 2000?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Incrementos não são atômicos: leituras simultâneas perdem escritas (race condition).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Descreva um deadlock com locks A e B e a regra que o previne.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">T1: lock(A)→quer B; T2: lock(B)→quer A. Regra: ordem global de aquisição (sempre A antes de B).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> Seu pod morreu com OOMKilled. O que aconteceu, em termos de kernel?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Container passou do limite de memória; o kernel (OOM killer) matou o processo.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que é <strong>escalonamento preemptivo</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">O kernel interrompe um processo para dar CPU a outro, criando a ilusão de simultaneidade.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> O que é <strong>syscall</strong> (chamada de sistema)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Interface que um programa usa para solicitar serviços ao kernel (ex: ler arquivo, alocar memória).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que é <strong>memória virtual</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Abstração que dá a cada processo seu próprio espaço de endereços contínuo.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que é <strong>page fault</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Interrupção quando um processo acessa uma página que não está na RAM.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que é <strong>swap</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Área em disco usada como extensão da memória RAM.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> O que é <strong>race condition</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quando o resultado de um programa depende da ordem imprevisível de execução de threads.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que é <strong>deadlock</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Situação onde dois ou mais processos ficam bloqueados permanentemente, cada um esperando por um recurso que o outro possui.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>semáforo</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Mecanismo de sincronização que controla acesso a recursos compartilhados.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é <strong>mutex</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Mecanismo de exclusão mútua que garante que apenas uma thread acesse um recurso por vez.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> Qual a diferença entre <strong>concorrência</strong> e <strong>paralelismo</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Concorrência: múltiplas tarefas em progresso (alternando); Paralelismo: múltiplas tarefas executando ao mesmo tempo (múltiplos cores).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que é <strong>context switch</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Troca do estado de um processo/thread para outro pela CPU.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> O que é <strong>interrupção</strong> (interrupt)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Sinal enviado ao processador para interromper a execução atual e atender a um evento.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <strong>kernel</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Núcleo do sistema operacional que gerencia hardware, processos, memória e I/O.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que é <strong>modo usuário</strong> e <strong>modo kernel</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Modo usuário: execução com privilégios limitados; Modo kernel: execução com privilégios totais (acesso ao hardware).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é <strong>POSIX</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Padrão de interfaces para sistemas operacionais compatíveis com Unix.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <strong>thread-safe</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Código que funciona corretamente quando executado por múltiplas threads simultaneamente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que é <strong>barreira</strong> (barrier) em programação concorrente?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ponto de sincronização onde threads esperam até que todas cheguem.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que é <strong>starvation</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quando uma thread nunca recebe o recurso que precisa para executar.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> O que é <strong>livelock</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Processos estão ativos mas não progridem, ficando em um loop de tentativas frustradas.</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

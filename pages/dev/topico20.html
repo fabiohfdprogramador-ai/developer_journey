@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Go</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>🐹 Go — Simplicidade que Escala</h1>
+    <p class="subtitle">Go idiomático: tipos, structs e interfaces, o tratamento de erros e — a joia — concorrência com goroutines, channels e context. Depois de C e SO, nada aqui é mágica: você sabe o que o runtime faz por você.</p>
+
+    <!-- Seção 1: Básico -->
+    <div class="section">
+        <h2>1. O Básico com Sotaque Go</h2>
+        <pre><code>package main
+
+import "fmt"
+
+type Sensor struct {
+    ID    string
+    Value float64
+}
+
+func (s Sensor) Label() string {  // método (receiver por valor)
+    return fmt.Sprintf("%s=%.2f", s.ID, s.Value)
+}
+
+func main() {
+    s := Sensor{ID: "temp-01", Value: 23.7}  // := infere o tipo
+    readings := []float64{21.2, 23.7, 25.1}   // slice (array dinâmico)
+    
+    total := 0.0
+    for _, v := range readings {
+        total += v
+    }
+    fmt.Println(s.Label(), "média:", total/float64(len(readings)))
+}</code></pre>
+        <ul>
+            <li><strong>Slices</strong>: estrutura do dia a dia (<code>append</code> cresce)</li>
+            <li><strong>Maps</strong>: <code>m := map[string]int{}</code></li>
+            <li><strong>Sem herança</strong>: composição + interfaces</li>
+        </ul>
+    </div>
+
+    <!-- Seção 2: Interfaces -->
+    <div class="section">
+        <h2>2. Interfaces — Satisfação Implícita</h2>
+        <pre><code>type Notifier interface {
+    Send(to, msg string) error
+}
+
+type EmailNotifier struct{}
+
+func (e EmailNotifier) Send(to, msg string) error {
+    // implementação...
+    return nil
+}
+// EmailNotifier JÁ é um Notifier – sem "implements".</code></pre>
+        <ul>
+            <li>Interfaces <strong>pequenas</strong> (1-2 métodos)</li>
+            <li>Definidas por <strong>quem consome</strong> — o <strong>D</strong> do SOLID nativo</li>
+            <li><code>io.Reader</code> / <code>io.Writer</code> são o exemplo canônico</li>
+        </ul>
+    </div>
+
+    <!-- Seção 3: Erros como Valores -->
+    <div class="section">
+        <h2>3. Erros como Valores</h2>
+        <pre><code>func LoadConfig(path string) (*Config, error) {
+    b, err := os.ReadFile(path)
+    if err != nil {
+        return nil, fmt.Errorf("lendo config %s: %w", path, err)
+    }
+    // ...
+}
+
+// no chamador:
+cfg, err := LoadConfig("app.yaml")
+if err != nil {
+    log.Fatal(err)
+}</code></pre>
+        <ul>
+            <li>Sem exceções: o erro é <strong>retorno</strong></li>
+            <li>Tratado <strong>onde acontece</strong></li>
+            <li>Contexto empilhado via <code>%w</code> (inspecionado com <code>errors.Is/As</code>)</li>
+        </ul>
+    </div>
+
+    <!-- Seção 4: Concorrência -->
+    <div class="section">
+        <h2>4. Concorrência — Goroutines e Channels</h2>
+        <pre><code>func worker(id int, jobs &lt;-chan string, results chan&lt;- string) {
+    for url := range jobs {  // consome até fecharem o canal
+        results &lt;- fetch(url) // envia (bloqueia se cheio)
+    }
+}
+
+func main() {
+    jobs, results := make(chan string), make(chan string)
+    
+    for i := 1; i <= 5; i++ {
+        go worker(i, jobs, results)  // 5 goroutines
+    }
+    
+    go func() {
+        for _, u := range urls { jobs &lt;- u }
+        close(jobs)
+    }()
+    
+    for range urls {
+        fmt.Println(&lt;-results)
+    }
+}</code></pre>
+        <ul>
+            <li><strong>Goroutine</strong>: função concorrente levíssima (KBs) — runtime multiplexa milhares em poucas threads do SO</li>
+            <li><strong>Channel</strong>: comunicação + sincronização no mesmo tubo</li>
+            <li>Lema: <strong>"não comunique compartilhando memória; compartilhe memória comunicando."</strong></li>
+            <li><strong>select</strong>: espera múltiplos canais</li>
+            <li><strong>sync.WaitGroup</strong>: espera um grupo terminar</li>
+            <li><strong>context.Context</strong>: cancelamento e deadline atravessando a pilha</li>
+            <li><code>go test -race</code> no CI, <strong>sempre</strong></li>
+        </ul>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Por que 100.000 goroutines são viáveis e 100.000 threads do SO não?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Stacks de KBs crescíveis + scheduler do runtime × MBs fixos e trocas de contexto do kernel.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Escreva <code>Median(xs []float64) (float64, error)</code> retornando erro para slice vazio.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ordene cópia, trate len==0 com <code>errors.New</code>, média dos centrais se par.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Monte um pipeline: um canal de ints, 3 goroutines que elevam ao quadrado, um canal de saída.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>for v := range in { out <- v*v }</code> em 3 goroutines; feche out com WaitGroup.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> O que acontece ao enviar num canal sem ninguém lendo? E ao ler de canal fechado?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Bloqueia (deadlock se ninguém jamais ler); canal fechado entrega zero value com ok=false.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Adapte o worker pool para parar limpo quando ctx for cancelado (select).</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>select { case j, ok := <-jobs: ...; case <-ctx.Done(): return }</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> O que é <strong>goroutine</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Thread leve gerenciada pelo runtime do Go.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que é <strong>channel</strong> em Go?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Canal de comunicação entre goroutines.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> O que é <strong>select</strong> em Go?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Permite esperar por múltiplas operações de canal simultaneamente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que é <strong>context.Context</strong> em Go?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Interface que carrega deadlines, cancelamento e valores para propagar entre goroutines.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que é <strong>sync.WaitGroup</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Espera que um grupo de goroutines termine.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que é <strong>sync.Mutex</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Mecanismo de exclusão mútua para proteger dados compartilhados.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> O que é <strong>race detector</strong> (<code>go test -race</code>)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ferramenta que detecta condições de corrida (race conditions) em programas Go.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que é <strong>slice</strong> em Go?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Array dinâmico com tamanho variável.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>map</strong> em Go?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Estrutura de dados chave-valor (hash table).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é <strong>struct</strong> em Go?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Conjunto de campos com tipos, similar à struct em C.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> O que é <strong>interface</strong> em Go?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Conjunto de métodos que um tipo deve implementar (satisfação implícita).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que é <strong>defer</strong> em Go?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Adia a execução de uma função até o retorno da função atual (comum para fechar arquivos).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> O que é <strong>panic</strong> e <strong>recover</strong> em Go?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Panic: erro fatal que interrompe a execução; Recover: recupera um panic (similar a try/catch).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <strong>goroutine leak</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Goroutine que nunca termina, consumindo recursos indefinidamente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que é <strong>channel buffer</strong> (canal com buffer)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Canal que armazena mensagens em um buffer, não bloqueando o envio até que o buffer esteja cheio.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é <strong>goroutine scheduler</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Componente do runtime Go que distribui goroutines entre threads do SO.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <strong>GOPATH</strong> e <strong>Go Modules</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">GOPATH: antiga estrutura de workspace; Go Modules: sistema moderno de gerenciamento de dependências.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que é <strong>pprof</strong> em Go?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ferramenta de profiling para CPU, memória e alocações.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que é <strong>garbage collector</strong> (GC) em Go?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Coletor de lixo que libera memória automaticamente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> O que é <strong>embed</strong> em Go 1.16+?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Diretiva que permite embutir arquivos estáticos no binário.</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

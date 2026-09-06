@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>SQL e PostgreSQL</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>🗄️ SQL e PostgreSQL a Fundo</h1>
+    <p class="subtitle">Modelar, consultar com joins e agregações, indexar com critério e entender transações — usando o PostgreSQL como universidade de dados.</p>
+
+    <!-- Seção 1: Modelagem -->
+    <div class="section">
+        <h2>1. Modelagem</h2>
+        <pre><code>CREATE TABLE customers (
+    id BIGSERIAL PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    created_at TIMESTAMP2 NOT NULL DEFAULT now()
+);
+
+CREATE TABLE orders (
+    id BIGSERIAL PRIMARY KEY,
+    customer_id BIGINT NOT NULL REFERENCES customers(id),
+    status TEXT NOT NULL CHECK (status IN ('new','paid','shipped','canceled')),
+    total_cents BIGINT NOT NULL,
+    created_at TIMESTAMP2 NOT NULL DEFAULT now()
+);</code></pre>
+        <ul>
+            <li><strong>Primary key</strong>: estável, única</li>
+            <li><strong>Foreign key</strong>: integridade no banco, não na aplicação</li>
+            <li><strong>Dinheiro</strong>: inteiros de centavos (evite float)</li>
+            <li><strong>Timestamp</strong>: sempre use <code>TIMESTAMP WITH TIME ZONE</code></li>
+            <li><strong>Normalize</strong> até doer, <strong>desnormalize</strong> onde medir</li>
+        </ul>
+    </div>
+
+    <!-- Seção 2: Consultas -->
+    <div class="section">
+        <h2>2. Consultas que Pagam o Salário</h2>
+        <pre><code>-- Filtro + Ordenação + Paginação
+SELECT id, name
+FROM customers
+WHERE created_at >= now() - interval '30 days'
+ORDER BY created_at DESC
+LIMIT 20;
+
+-- JOIN: pedidos com o nome do cliente
+SELECT o.id, c.name, o.total_cents
+FROM orders o
+JOIN customers c ON c.id = o.customer_id
+WHERE o.status = 'paid';
+
+-- Agregação: receita por cliente
+SELECT c.name, SUM(o.total_cents)/100.0 AS receita
+FROM orders o
+JOIN customers c ON c.id = o.customer_id
+GROUP BY c.name
+HAVING SUM(o.total_cents) > 50000
+ORDER BY receita DESC;</code></pre>
+        <ul>
+            <li><strong>JOINs</strong>: INNER (só casados), LEFT (todos da esquerda + pares)</li>
+            <li><strong>WHERE</strong> filtra linhas antes de agrupar; <strong>HAVING</strong> filtra grupos</li>
+            <li><strong>Window functions</strong>: <code>ROW_NUMBER() OVER (...)</code></li>
+            <li><strong>CTEs</strong>: <code>WITH recentes AS (...) SELECT ...</code></li>
+        </ul>
+    </div>
+
+    <!-- Seção 3: Índices -->
+    <div class="section">
+        <h2>3. Índices — O log n Aplicado</h2>
+        <pre><code>CREATE INDEX idx_orders_customer ON orders (customer_id);
+CREATE INDEX idx_orders_status_created ON orders (status, created_at);</code></pre>
+        <ul>
+            <li>Indexe o que o <code>WHERE</code>/<code>JOIN</code>/<code>ORDER BY</code> usa</li>
+            <li>Índice composto serve <strong>prefixos</strong>: <code>(status, created_at)</code> atende <code>status=</code> e <code>status= AND created_at></code></li>
+            <li>Cada escrita atualiza os índices — indexar tudo deixa o INSERT de joelhos</li>
+        </ul>
+
+        <h3>EXPLAIN ANALYZE</h3>
+        <pre><code>EXPLAIN ANALYZE SELECT ...;</code></pre>
+        <ul>
+            <li><strong>Seq Scan</strong> = leu a tabela toda</li>
+            <li><strong>Index Scan</strong> = usou a árvore</li>
+        </ul>
+    </div>
+
+    <!-- Seção 4: Transações -->
+    <div class="section">
+        <h2>4. Transações e ACID</h2>
+        <pre><code>BEGIN;
+UPDATE contas SET saldo = saldo - 100 WHERE id = 1;
+UPDATE contas SET saldo = saldo + 100 WHERE id = 2;
+COMMIT;  -- ou ROLLBACK: tudo ou nada</code></pre>
+        <ul>
+            <li><strong>Atomicity</strong>: tudo ou nada</li>
+            <li><strong>Consistency</strong>: estado válido antes e depois</li>
+            <li><strong>Isolation</strong>: concorrência isolada</li>
+            <li><strong>Durability</strong>: persistente após commit</li>
+        </ul>
+        <p><strong>MVCC</strong>: leituras consistentes sem bloquear escritas.</p>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Escreva a consulta: os 10 clientes com mais pedidos 'paid' nos últimos 90 dias.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">JOIN + WHERE status/data + GROUP BY cliente + ORDER BY COUNT() DESC LIMIT 10.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Por que <code>total_cents BIGINT</code> e não <code>total NUMERIC(10,2)</code> ou <code>float</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Centavos inteiros: exatos e rápidos; float erra centavos (IEEE 754); NUMERIC é exato porém mais lento.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> A consulta <code>WHERE email = 'x@y.com'</code> está lenta com 5 milhões de clientes. Diagnóstico e correção?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">EXPLAIN mostrará Seq Scan; o UNIQUE em email já cria índice — se não existisse, <code>CREATE INDEX ON customers(email)</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> O índice <code>(status, created_at)</code> atende <code>WHERE created_at > now() - interval '1 day'</code>? Por quê?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Não — created_at não é prefixo do índice.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Modele a transferência entre carteiras com proteção contra saldo negativo (constraint + transação).</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">CHECK (saldo >= 0) + BEGIN/2 UPDATES/COMMIT (o CHECK aborta a transação se negativar).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> O que MVCC permite que um esquema de locks puros não permite?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Leituras consistentes sem bloquear escritas (e vice-versa).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que é <strong>JOIN</strong> em SQL?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Combina registros de duas ou mais tabelas baseado em uma condição.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> Qual a diferença entre <strong>INNER JOIN</strong> e <strong>LEFT JOIN</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">INNER: só registros que casam; LEFT: todos da esquerda + casamentos da direita (NULL se não casar).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que é <strong>GROUP BY</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Agrupa registros que têm os mesmos valores para aplicar funções de agregação.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> Qual a diferença entre <strong>WHERE</strong> e <strong>HAVING</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">WHERE filtra linhas antes do GROUP BY; HAVING filtra grupos depois do GROUP BY.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que é <strong>PRIMARY KEY</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Chave que identifica unicamente cada registro na tabela.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> O que é <strong>FOREIGN KEY</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Chave que referencia a PRIMARY KEY de outra tabela (integridade referencial).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que é <strong>índice</strong> em banco de dados?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Estrutura que acelera buscas (ex: B-tree) ao custo de escritas mais lentas.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>transação</strong> ACID?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Sequência de operações executada como unidade atômica, consistente, isolada e durável.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é <strong>MVCC</strong> (Multi-Version Concurrency Control)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Mecanismo que mantém múltiplas versões de um registro para permitir leituras consistentes sem bloquear escritas.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> O que é <strong>normalização</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Processo de organizar dados para reduzir redundância e melhorar integridade.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que é <strong>desnormalização</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Introdução controlada de redundância para melhorar performance de leitura.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> O que é <strong>EXPLAIN</strong> em PostgreSQL?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Mostra o plano de execução de uma consulta — como o banco vai executá-la.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> Qual a diferença entre <code>CHAR</code> e <code>VARCHAR</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">CHAR: tamanho fixo (completa com espaços); VARCHAR: tamanho variável.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que é <strong>B-tree</strong> no contexto de índices?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Árvore balanceada usada em índices para buscas O(log n).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é <strong>VIEW</strong> (visão) no banco de dados?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Consulta SQL armazenada que se comporta como uma tabela virtual.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <strong>materialized view</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">View que armazena fisicamente os resultados (mais rápida para consultas).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que é <strong>CTE</strong> (Common Table Expression)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Tabela temporária dentro de uma consulta, criada com <code>WITH</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que é <strong>WAL</strong> (Write-Ahead Log) no PostgreSQL?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Log que registra mudanças antes de serem aplicadas ao disco (durabilidade e recuperação).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> O que é <strong>vacuum</strong> no PostgreSQL?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Processo que limpa registros mortos (deletados/atualizados) e recupera espaço.</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

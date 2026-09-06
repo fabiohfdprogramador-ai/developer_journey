@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Kubernetes</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>☸️ Kubernetes — O Essencial que Resolve 90%</h1>
+    <p class="subtitle">O modelo declarativo e os 6 objetos do dia a dia — Deployment, Pod, Service, Ingress, ConfigMap/Secret — com probes e requests/limits bem postos.</p>
+
+    <!-- Seção 1: Modelo Mental -->
+    <div class="section">
+        <h2>1. O Modelo Mental</h2>
+        <ul>
+            <li>Você declara o <strong>estado desejado</strong> (YAML)</li>
+            <li>Controladores <strong>reconciliam</strong> o mundo real até bater (loop de reconciliação)</li>
+            <li><strong>Kubelet</strong>: roda pods nos nós</li>
+            <li><strong>Scheduler</strong>: decide onde cabe</li>
+        </ul>
+    </div>
+
+    <!-- Seção 2: O YAML Canônico -->
+    <div class="section">
+        <h2>2. O YAML Canônico</h2>
+        <pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata: { name: api }
+spec:
+  replicas: 3
+  selector: { matchLabels: { app: api } }
+  template:
+    metadata: { labels: { app: api } }
+    spec:
+      containers:
+      - name: api
+        image: registry.io/api:1.4.2
+        ports: { containerPort: 8080 }
+        envFrom:
+        - configMapRef: { name: api-config }
+        - secretRef: { name: api-secrets }
+        resources:
+          requests: { cpu: "100m", memory: "128Mi" }   # para agendar
+          limits: { cpu: "500m", memory: "256Mi" }     # teto (OOMkill)
+        readinessProbe: { httpGet: { path: /ready, port: 8080 } }
+        livenessProbe: { httpGet: { path: /live, port: 8080 } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: api }
+spec:
+  selector: { app: api }
+  ports: { port: 80, targetPort: 8080 }</code></pre>
+        <ul>
+            <li><strong>Pod</strong>: 1+ containers com rede/volume compartilhados</li>
+            <li><strong>Deployment</strong>: mantém N réplicas e faz rolling update</li>
+            <li><strong>Service</strong>: IP/DNS estável na frente dos pods</li>
+            <li><strong>Ingress</strong>: roteia HTTP externo</li>
+            <li><strong>ConfigMap/Secret</strong>: config fora da imagem</li>
+        </ul>
+    </div>
+
+    <!-- Seção 3: Probes -->
+    <div class="section">
+        <h2>3. Probes</h2>
+        <ul>
+            <li><strong>readiness</strong> = "posso receber tráfego?" (tira do balanceador sem matar)</li>
+            <li><strong>liveness</strong> = "estou vivo?" (reinicia se travar)</li>
+        </ul>
+        <p style="color:var(--danger);">⚠️ Confundir os dois causa cascatas de restart.</p>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Por que apontar clientes para o Service e nunca para IP de pod?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Pods morrem e trocam de IP; o Service é o endereço estável com balanceamento.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Pod em CrashLoopBackOff: seus três primeiros comandos?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">kubectl logs (ou --previous), kubectl describe pod (eventos), conferir probes/env/imagem.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Readiness x liveness: o que acontece se você usar liveness onde era readiness (ex.: dependência externa fora)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Reinícios em massa por causa de dependência externa — derruba tudo em cascata; readiness só tiraria do tráfego.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Sem requests, o que o scheduler não consegue fazer? Sem limits, qual o risco?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Agendar com critério (bin packing); sem limites, um vizinho barulhento esfomeia o nó.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Escreva o Ingress (esboço) para api.exemplo.com → Service api:80.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">kind Ingress com rule host api.example.com, path /, backend service api porta 80 (+ TLS via secret).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> O que é <strong>Kubernetes</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Orquestrador de containers para automação de deploy, scaling e gerenciamento.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que é um <strong>Pod</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Menor unidade do K8s: um ou mais containers com rede e volume compartilhados.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> O que é um <strong>Deployment</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Controlador que gerencia réplicas de Pods com rolling updates e rollbacks.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que é um <strong>Service</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Abstração que expõe Pods como um serviço de rede estável.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que é um <strong>Ingress</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Objeto que gerencia acesso externo HTTP/HTTPS aos serviços.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que é <strong>ConfigMap</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Armazena dados de configuração em formato chave-valor.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> O que é <strong>Secret</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Armazena dados sensíveis como senhas, tokens, chaves SSH.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que é <strong>kubectl</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">CLI para gerenciar clusters Kubernetes.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>kubelet</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Agente que roda em cada nó e garante que os containers estejam em execução.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é <strong>scheduler</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Componente que decide em qual nó um Pod vai rodar.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> O que é <strong>namespace</strong> no Kubernetes?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Isolamento lógico de recursos dentro do cluster.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que é <strong>Horizontal Pod Autoscaler</strong> (HPA)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Auto-scaling baseado em métricas (CPU, memória, custom).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> O que é <strong>readinessProbe</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Verifica se o container está pronto para receber tráfego.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <strong>livenessProbe</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Verifica se o container está vivo (reinicia se falhar).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que é <strong>rolling update</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Atualização gradual de Pods, substituindo um por um, sem downtime.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é <strong>rollback</strong> no Kubernetes?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Reverte um deployment para uma versão anterior.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <strong>PersistentVolume</strong> (PV)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Recurso de armazenamento persistente no cluster.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que é <strong>PersistentVolumeClaim</strong> (PVC)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Solicitação de armazenamento por um Pod.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que é <strong>etcd</strong> no Kubernetes?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Banco de dados distribuído que armazena o estado do cluster.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> O que é <strong>kube-api-server</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Componente central que expõe a API do Kubernetes.</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

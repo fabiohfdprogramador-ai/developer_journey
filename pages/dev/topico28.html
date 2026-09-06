@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>System Design</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>🏛️ System Design — Um Projeto Trabalhado</h1>
+    <p class="subtitle">O método de projetar sistemas — requisitos → estimativas → desenho → gargalos → evolução — aplicado do início ao fim num encurtador de URLs.</p>
+
+    <!-- Seção 1: Requisitos e Estimativas -->
+    <div class="section">
+        <h2>1. Requisitos e Estimativas (5 Minutos que Mudam Tudo)</h2>
+        
+        <h3>Funcionais</h3>
+        <ul>
+            <li>Criar URL curta</li>
+            <li>Redirecionar</li>
+            <li>Expiração opcional</li>
+            <li>Métricas de cliques</li>
+        </ul>
+
+        <h3>Não-funcionais</h3>
+        <ul>
+            <li>Leitura ≫ escrita (100:1)</li>
+            <li>Redirect p99 < 50 ms</li>
+            <li>99,95% disponível</li>
+        </ul>
+
+        <h3>Números</h3>
+        <ul>
+            <li>10 M novas URLs/mês ≈ 4 escritas/s</li>
+            <li>Leituras ≈ 400/s (pico 10× = 4.000/s)</li>
+            <li>5 anos: 600 M registros × ~500 B ≈ 300 GB</li>
+        </ul>
+        <p>Um Postgres dá conta do dado; o desafio é a <strong>latência de leitura</strong>.</p>
+    </div>
+
+    <!-- Seção 2: O Desenho -->
+    <div class="section">
+        <h2>2. O Desenho</h2>
+        
+        <h3>Escrita</h3>
+        <ul>
+            <li>POST /urls → gera código de 7 chars base62 (62⁷ ≈ 3,5 trilhões)</li>
+            <li>Colisão desprezível com geração aleatória + UNIQUE constraint e retry</li>
+            <li>Grava (code, url, expires_at)</li>
+        </ul>
+
+        <h3>Leitura</h3>
+        <ul>
+            <li>GET /{code} → cache primeiro (Redis, cache-aside, TTL 24 h)</li>
+            <li>Miss → Postgres → HTTP 301/302</li>
+        </ul>
+
+        <h3>Contagem de Cliques</h3>
+        <ul>
+            <li>Não escreva no banco por clique (mataria a escrita)</li>
+            <li>Publique evento click no tópico (Kafka/NATS)</li>
+            <li>Agregue em lote no colunar</li>
+        </ul>
+
+        <h3>Infra</h3>
+        <ul>
+            <li>Stateless API × N réplicas</li>
+            <li>Redis, Postgres com réplica de leitura</li>
+            <li>RED + tracing</li>
+        </ul>
+    </div>
+
+    <!-- Seção 3: Gargalos e Evolução -->
+    <div class="section">
+        <h2>3. Gargalos e Evolução</h2>
+        <ul>
+            <li><strong>Redis caiu?</strong> Cache-aside degrada para o banco (mais lento, mas vivo)</li>
+            <li><strong>Postgres saturou leitura?</strong> Réplicas</li>
+            <li><strong>Escrita?</strong> Só então particionar por hash(code)</li>
+            <li><strong>Multi-região</strong>: redirects na borda (CDN/edge cache) resolvem 90%</li>
+        </ul>
+        <p style="color:var(--warning);">💡 O método é o produto: requisitos → números → componentes com justificativa → modos de falha → evolução.</p>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Refaça as estimativas para 100× a escala. O que muda primeiro: banco, cache ou app?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">App é stateless (escala fácil); cache absorve leitura; o primeiro a doer é a escrita no Postgres (~400/s ainda ok; em 100× revise geração de IDs e particionamento).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Por que 301 (permanente) × 302 (temporário) muda a contagem de cliques? Qual usar aqui?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">301 é cacheado pelo navegador → cliques futuros nem chegam a você; use 302 se métricas importam.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Desenhe (papel) o fluxo do clique com cache hit e com miss, incluindo o evento de métrica.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">hit: api → redis → 302 (+ evento async); miss: api → redis(∅) → pg → popula redis → 302 (+ evento).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Aplique o método completo (5 passos) a: "sistema de ingestão de telemetria de 100 k dispositivos".</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">livre — critérios: escrita ≫ leitura (inverte o encurtador!), fila na frente, agregação colunar, retenção por camadas.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> O que é <strong>system design</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Processo de projetar sistemas escaláveis, confiáveis e eficientes.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> O que é <strong>requisito funcional</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">O que o sistema deve fazer (funcionalidades).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que é <strong>requisito não-funcional</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Como o sistema deve ser (performance, disponibilidade, segurança).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> O que é <strong>throughput</strong> em system design?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quantidade de requisições que o sistema pode processar por unidade de tempo.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que é <strong>latência</strong> em system design?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Tempo que uma requisição leva para ser processada.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que é <strong>disponibilidade</strong> (availability)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Percentual de tempo que o sistema está operacional (ex: 99,9%).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que é <strong>escalabilidade</strong> (scalability)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Capacidade do sistema de lidar com aumento de carga.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> O que é <strong>vertical scaling</strong> (scale up)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Aumentar os recursos de uma máquina (CPU, RAM).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que é <strong>horizontal scaling</strong> (scale out)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Adicionar mais máquinas ao sistema.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>cache-aside</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Padrão de cache onde a aplicação lê do cache e popula em caso de miss.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é <strong>write-through cache</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Cache onde escritas vão para o cache E para o banco simultaneamente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> O que é <strong>write-behind cache</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Cache onde escritas vão para o cache e são persistidas assincronamente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que é <strong>CDN</strong> (Content Delivery Network)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Rede de servidores distribuídos que entrega conteúdo com baixa latência.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> O que é <strong>load balancer</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Componente que distribui tráfego entre múltiplos servidores.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <strong>sharding</strong> (particionamento)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Divisão horizontal dos dados entre múltiplos bancos.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que é <strong>read replica</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Cópia do banco de dados usada apenas para leituras (offload do primário).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é <strong>eventual consistency</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Garantia que o sistema se tornará consistente eventualmente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <strong>strong consistency</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Garantia que todos os leituras veem a versão mais recente dos dados.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que é <strong>rate limiting</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Controle de requisições por cliente para evitar abuso.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que é <strong>circuit breaker</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Padrão que interrompe chamadas a serviços falhos para evitar cascatas.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> O que é <strong>retry com backoff</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Padrão onde tentativas falhas são repetidas com tempo de espera crescente.</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Código Fonte e Open Source</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>📖 Ler os Mestres e Contribuir</h1>
+    <p class="subtitle">As duas práticas que aceleram o fim da curva: ler código de gente grande e contribuir com open source — com protocolo, não com boa intenção.</p>
+
+    <!-- Seção 1: Ler Código-Fonte -->
+    <div class="section">
+        <h2>1. Ler Código-Fonte (1 Sessão/Semana, para sempre)</h2>
+        
+        <h3>Onde começar</h3>
+        <ul>
+            <li><strong>Redis</strong>: C limpo, comentado, tamanho abarcável</li>
+            <li><strong>PostgreSQL</strong>: módulos (parser, executor)</li>
+            <li><strong>Runtime de Go</strong>: trechos do scheduler e GC</li>
+            <li><strong>Utilitários Unix</strong>: ferramentas clássicas</li>
+        </ul>
+
+        <h3>Protocolo de leitura</h3>
+        <ol>
+            <li>Escolha <strong>UMA pergunta</strong> ("como o Redis trata um GET?")</li>
+            <li>Entre pela <code>main</code>/handler</li>
+            <li>Siga o fluxo com <strong>caderno</strong>, desenhando as estruturas</li>
+            <li>Escreva um <strong>resumo de 10 linhas</strong></li>
+        </ol>
+        <p style="color:var(--warning);">💡 Ler sem pergunta é turismo; com pergunta é treino.</p>
+        <p style="color:var(--success);">✅ O ganho composto: você absorve padrões de projeto reais e perde o medo de "código dos outros".</p>
+    </div>
+
+    <!-- Seção 2: Open Source -->
+    <div class="section">
+        <h2>2. Open Source (O Code Review que Ensina de Graça)</h2>
+        
+        <h3>A escada do open source</h3>
+        <ol>
+            <li><strong>Usar</strong> → conhecer a ferramenta</li>
+            <li><strong>Reportar bug</strong> bem escrito (mínimo reproduzível!)</li>
+            <li><strong>Documentação</strong> e testes</li>
+            <li><strong>Good first issue</strong></li>
+            <li><strong>Bugfix</strong></li>
+            <li><strong>Feature pequena</strong></li>
+        </ol>
+
+        <h3>Alvos naturais</h3>
+        <ul>
+            <li>Ferramentas que você já usa (NestJS, libs Go, K8s ecosystem)</li>
+            <li>Leia o <strong>CONTRIBUTING</strong></li>
+            <li>PR <strong>pequeno</strong>, descrição honesta</li>
+            <li>Paciência com o review — mantenedor é <strong>mentoria gratuita</strong></li>
+        </ul>
+        <p style="color:var(--warning);">💡 Meta do bloco: <strong>3 PRs aceitos</strong> em projetos reais.</p>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Por que ler código-fonte de projetos grandes é importante?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Absorve padrões de projeto reais, perde o medo de código alheio e melhora sua própria escrita.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Qual a diferença entre ler código "por turismo" e "com pergunta"?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Turismo: ler sem objetivo; com pergunta: foco direcionado que gera aprendizado.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Qual a escada de contribuição em open source?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Usar → reportar bug → docs/testes → good first issue → bugfix → feature pequena.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Como escrever um bom reporte de bug?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Mínimo reproduzível, descrição clara, logs, versão do software.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Qual a meta de PRs aceitos neste bloco?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">3 PRs aceitos em projetos reais.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> O que é <strong>open source</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Código fonte disponível publicamente para uso, modificação e distribuição.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que é <strong>contribuição open source</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Qualquer trabalho (código, docs, testes, bug reports) adicionado a um projeto open source.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> O que é <strong>good first issue</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Issue em projetos open source marcada como adequada para iniciantes.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que é <strong>CONTRIBUTING</strong> em projetos open source?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Guia de contribuição do projeto, com regras e processo de PR.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que é <strong>code review</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Processo de revisão de código por outros desenvolvedores antes do merge.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que é <strong>pull request</strong> (PR)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Requisição para mesclar mudanças de uma branch para outra em um repositório Git.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> O que é <strong>fork</strong> no contexto do GitHub?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Cópia de um repositório para sua conta, permitindo contribuições sem permissão direta.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que é <strong>CLA</strong> (Contributor License Agreement)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Acordo legal que define os direitos do contribuidor sobre o código.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>DCO</strong> (Developer Certificate of Origin)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Certificado que o contribuidor tem direito a enviar o código.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é <strong>LICENSE</strong> em um projeto open source?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Arquivo que define os termos de uso, modificação e distribuição do código.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> O que é <strong>MIT License</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Licença permissiva que permite uso, modificação e distribuição.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que é <strong>GPL License</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Licença copyleft que exige que derivativos também sejam open source.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> O que é <strong>Apache License</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Licença permissiva com proteção de patentes.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <strong>maintainer</strong> em open source?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Responsável por manter o projeto, revisar PRs e gerenciar issues.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que é <strong>contributor</strong> em open source?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quem contribui com código, documentação ou qualquer trabalho para o projeto.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é <strong>issue tracker</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Sistema de gerenciamento de tarefas, bugs e solicitações (ex: GitHub Issues).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <strong>README</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Arquivo de documentação principal do projeto.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que é <strong>CHANGELOG</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Registro de mudanças e versões do projeto.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que é <strong>semantic versioning</strong> (SemVer)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Sistema de versionamento MAJOR.MINOR.PATCH (ex: 2.1.3).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> Qual a importância de contribuir com open source para um(a) engenheiro(a)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Aprende com mentores, constrói portfólio, entende código de produção real.</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

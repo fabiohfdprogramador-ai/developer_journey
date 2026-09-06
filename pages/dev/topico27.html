@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Performance</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>⚡ Performance — Método, Não Adivinhação</h1>
+    <p class="subtitle">O ritual profissional: medir por percentis, achar o gargalo com profiling, atacar com a alavanca certa (quase sempre cache ou I/O) e provar o ganho.</p>
+
+    <!-- Seção 1: O Ritual -->
+    <div class="section">
+        <h2>1. O Ritual</h2>
+        <ol>
+            <li><strong>Defina a meta</strong> (SLO: p95 < 300 ms no checkout)</li>
+            <li><strong>Meça em produção</strong> (RED do cap. 24) — intuição não é dado</li>
+            <li><strong>Profile</strong> para achar o gargalo: CPU/heap com pprof, flamegraphs, EXPLAIN ANALYZE</li>
+            <li><strong>Otimize UMA coisa</strong>, a maior</li>
+            <li><strong>Meça de novo</strong> e escreva o antes/depois</li>
+        </ol>
+        <p style="color:var(--danger);">⚠️ Sem o passo 5, foi fé, não engenharia.</p>
+        <p><strong>Lei de Amdahl</strong>: otimizar 5% do tempo total rende no máximo 5%.</p>
+    </div>
+
+    <!-- Seção 2: As Alavancas -->
+    <div class="section">
+        <h2>2. As Alavancas Usuais (em ordem de frequência)</h2>
+        
+        <h3>Banco</h3>
+        <ul>
+            <li>Consulta <strong>N+1</strong> (100 queries onde cabia 1 JOIN)</li>
+            <li>Índice <strong>faltando</strong></li>
+            <li><strong>SELECT *</strong> gordo</li>
+        </ul>
+
+        <h3>Cache em Camadas</h3>
+        <ul>
+            <li>Memória local → Redis → CDN</li>
+            <li><strong>Cache-aside</strong>: lê do cache; miss → busca, popula com TTL</li>
+            <li>Parte difícil: <strong>invalidação</strong> (TTL curto + invalidação por evento)</li>
+            <li>Cuidado com <strong>hot key</strong> e <strong>stampede</strong> (lock/single-flight no miss)</li>
+        </ul>
+
+        <h3>Concorrência e Batching</h3>
+        <ul>
+            <li>Paralelize <strong>I/O independente</strong></li>
+            <li>Agrupe escritas</li>
+            <li><strong>Backpressure</strong>: fila limitada + rejeitar cedo</li>
+        </ul>
+
+        <h3>Alocações e Serialização</h3>
+        <ul>
+            <li>Menos JSON gigante, menos cópias, buffers reusados</li>
+        </ul>
+    </div>
+
+    <!-- Seção 3: Exemplo Resolvido -->
+    <div class="section">
+        <h2>3. Exemplo Resolvido — O Endpoint de 900 ms</h2>
+        <p>p95 de 900 ms no GET /dashboard. Trace mostra: 12 queries (N+1 por widget) + serialização de 2 MB.</p>
+        <p><strong>Ações:</strong></p>
+        <ol>
+            <li>1 query com JOIN + projeção dos campos usados (~600 ms)</li>
+            <li>Cache Redis de 30 s no agregado (~200 ms no hit)</li>
+        </ol>
+        <p><strong>Resultado medido:</strong> p95 = 110 ms</p>
+        <p style="color:var(--warning);">💡 Post com flamegraph antes/depois publicado — este é o formato do seu portfólio de performance.</p>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Por que p99 importa mais que média num e-commerce? Dê o exemplo numérico do cap. 24.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">1% dos checkouts lentos = clientes reais perdidos; média esconde a cauda (p50 80 ms, p99 2 s).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Detecte o N+1: <code>pedidos = repo.list(); for p in pedidos: p.cliente = repo.cliente(p.id_cliente)</code>. Corrija.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">1 + N queries → JOIN / WHERE id IN (…) numa ida.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Projete o cache do GET /produto/{id}: chave, TTL, invalidação no update.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">prod:{id} com TTL 60 s; no update, DEL prod:{id} (invalidação por evento).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> O que é cache stampede e como o single-flight resolve?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Expirou a chave quente → mil misses simultâneos batem no banco; single-flight deixa 1 buscar e os demais esperam o resultado.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Sua API aguenta 1.000 req/s e chegam 5.000: por que fila ilimitada é pior que rejeitar com 429?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Fila infinita = latência infinita e OOM; rejeitar cedo preserva quem dá para atender (backpressure).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> O que é <strong>profiling</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Análise do comportamento de um programa (CPU, memória, alocações) para encontrar gargalos.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que é <strong>flamegraph</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Visualização de profiling onde a largura mostra onde o tempo é gasto.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> O que é <strong>pprof</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ferramenta de profiling para Go (CPU, memória, alocações).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que é <strong>cache stampede</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Múltiplas requisições simultâneas para um cache expirado, todas batendo no banco.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que é <strong>single-flight</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Padrão onde apenas uma requisição executa e as demais esperam o resultado.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que é <strong>backpressure</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Mecanismo que rejeita requisições quando o sistema está sobrecarregado.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> O que é <strong>Lei de Amdahl</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">O ganho de performance é limitado pela fração do código que foi otimizada.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que é <strong>N+1 problem</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">1 query para listar + N queries para detalhes de cada item.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>cache-aside</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Padrão onde a aplicação consulta o cache primeiro; se miss, busca no banco e popula.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é <strong>TTL</strong> em cache?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Time To Live: tempo de vida de um item no cache.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> O que é <strong>hot key</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Chave em cache que é acessada frequentemente por muitos usuários.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que é <strong>memory leak</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Memória alocada que nunca é liberada, consumindo recursos.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> O que é <strong>garbage collection</strong> (GC)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Coletor de lixo que libera memória automaticamente em linguagens como Go, Java.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <strong>benchmark</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Teste para medir performance de um sistema ou componente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que é <strong>latência</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Tempo de resposta de uma requisição.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é <strong>throughput</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quantidade de requisições processadas por unidade de tempo.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <strong>percentil</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Valor abaixo do qual X% das observações se encontram.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que é <strong>query N+1</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Problema onde N+1 queries são executadas onde 1 seria suficiente (usando JOIN).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que é <strong>EXPLAIN ANALYZE</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Comando PostgreSQL que mostra o plano de execução e estatísticas reais de uma query.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> O que é <strong>cache miss</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quando o dado não está no cache e precisa ser buscado na fonte original.</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

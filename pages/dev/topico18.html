@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Engenharia de Software</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>🏛️ Engenharia de Software — Código que Sobrevive</h1>
+    <p class="subtitle">SOLID com exemplo real, a pirâmide de testes e as arquiteturas (camadas, hexagonal, DDD) — o que separa código que funciona de código que continua funcionando com o time crescendo.</p>
+
+    <!-- Seção 1: SOLID -->
+    <div class="section">
+        <h2>1. SOLID Sem Cerimônia</h2>
+        <table>
+            <tr><th>Letra</th><th>Princípio</th><th>Em uma frase</th></tr>
+            <tr><td>S</td><td>Responsabilidade única</td><td>um motivo para mudar por módulo</td></tr>
+            <tr><td>O</td><td>Aberto/fechado</td><td>estenda por composição, não editando o núcleo</td></tr>
+            <tr><td>L</td><td>Substituição de Liskov</td><td>subtipo honra o contrato do tipo</td></tr>
+            <tr><td>I</td><td>Segregação de interfaces</td><td>interfaces pequenas e específicas</td></tr>
+            <tr><td>D</td><td>Inversão de dependência</td><td>dependa de abstrações, não de implementações</td></tr>
+        </table>
+
+        <h3>O D na Prática (TypeScript/Go)</h3>
+        <pre><code>interface Notifier {
+    Send(to string, msg string) error
+}
+
+type OrderService struct {
+    notifier Notifier  // abstração!
+}
+
+func (s *OrderService) Confirm(order Order) error {
+    // ... regra de negócio ...
+    return s.notifier.Send(order.Email, "Pedido confirmado")
+}
+
+// EmailNotifier, SmsNotifier, FakeNotifier (testes) - o serviço não muda.</code></pre>
+        <p>A regra de negócio ficou <strong>testável sem rede</strong> e <strong>aberta a novos canais</strong> sem edição.</p>
+    </div>
+
+    <!-- Seção 2: Testes -->
+    <div class="section">
+        <h2>2. Testes — A Pirâmide e o Hábito</h2>
+        <div style="display:flex; flex-direction:column; align-items:center; margin:12px 0;">
+            <div style="background:var(--bg-dark); padding:16px; border-radius:8px; width:100%; max-width:300px;">
+                <div style="background:var(--danger); padding:8px; border-radius:4px; text-align:center; margin-bottom:4px;">
+                    <strong>E2E</strong> (poucos)
+                </div>
+                <div style="background:var(--warning); padding:8px; border-radius:4px; text-align:center; margin-bottom:4px;">
+                    <strong>Integração</strong> (alguns)
+                </div>
+                <div style="background:var(--success); padding:12px; border-radius:4px; text-align:center;">
+                    <strong>Unitários</strong> (muitos, milissegundos)
+                </div>
+            </div>
+        </div>
+        <ul>
+            <li><strong>Unitários</strong>: funções e regras puras</li>
+            <li><strong>Integração</strong>: repositório + banco real em container</li>
+            <li><strong>E2E</strong>: fluxo crítico de ponta a ponta</li>
+        </ul>
+        <p><strong>Anatomia AAA</strong>: <strong>A</strong>rrange (monta cenário) → <strong>A</strong>ct (executa) → <strong>A</strong>ssert (verifica comportamento)</p>
+        <p style="color:var(--warning);">💡 TDD pragmático: escreva o teste antes quando o design está nebuloso.</p>
+    </div>
+
+    <!-- Seção 3: Arquitetura -->
+    <div class="section">
+        <h2>3. Arquitetura: Camadas → Hexagonal → DDD</h2>
+        
+        <h3>Camadas</h3>
+        <p>Controller → Service → Repository. Suficiente para muita coisa; o pecado é vazar SQL no controller.</p>
+
+        <h3>Hexagonal (Ports & Adapters)</h3>
+        <div style="background:var(--bg-dark); padding:16px; border-radius:8px; text-align:center; margin:8px 0;">
+            <div style="display:inline-block; border:2px solid var(--primary); border-radius:50%; padding:20px 30px; margin:8px;">
+                <strong style="color:var(--primary);">Domínio</strong>
+                <p style="font-size:12px;">(regras de negócio)</p>
+            </div>
+            <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap; margin-top:8px;">
+                <span style="background:var(--bg-card); padding:6px 12px; border-radius:4px; border:1px solid var(--border);">HTTP (adaptador entrada)</span>
+                <span style="background:var(--bg-card); padding:6px 12px; border-radius:4px; border:1px solid var(--border);">Postgres (adaptador saída)</span>
+                <span style="background:var(--bg-card); padding:6px 12px; border-radius:4px; border:1px solid var(--border);">Fila (adaptador saída)</span>
+            </div>
+        </div>
+        <p>O domínio no centro, sem saber de HTTP nem de Postgres.</p>
+
+        <h3>DDD (O Essencial)</h3>
+        <ul>
+            <li><strong>Entidades</strong>: identidade</li>
+            <li><strong>Value Objects</strong>: valor imutável</li>
+            <li><strong>Agregados</strong>: fronteira de consistência</li>
+            <li><strong>Repositórios</strong>: por agregado</li>
+            <li><strong>Linguagem ubíqua</strong>: código fala o idioma do negócio</li>
+        </ul>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Aponte a violação de S: classe UserService que valida, salva no banco, envia e-mail e formata o JSON de resposta.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quatro motivos de mudança numa classe; separe validação, persistência, notificação e apresentação.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Escreva (pseudocódigo) o teste unitário de <code>OrderService.confirm</code> usando um <code>FakeNotifier</code>.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Arrange: FakeNotifier gravando chamadas; Act: <code>confirm(order)</code>; Assert: fake recebeu (email, msg) e pedido mudou de status.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Na hexagonal, onde vivem: regra de desconto, controller HTTP, repositório Postgres, cliente de fila?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Domínio (centro); adaptador de entrada; adaptador de saída; adaptador de saída.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Defina agregado e dê um exemplo do seu domínio de trabalho.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Fronteira de consistência transacional — ex.: Pedido + Itens (mudam juntos, versão única).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Por que "testar detalhes internos" cria testes que quebram em toda refatoração?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Detalhes mudam sem mudar comportamento; teste acoplado a detalhe pune a melhoria.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> O que é <strong>SOLID</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Conjunto de 5 princípios de design de software orientado a objetos.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que é <strong>Single Responsibility Principle</strong> (SRP)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Uma classe deve ter apenas um motivo para mudar.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> O que é <strong>Open/Closed Principle</strong> (OCP)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Código deve ser aberto para extensão, fechado para modificação.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que é <strong>Liskov Substitution Principle</strong> (LSP)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Subtipos devem ser substituíveis por seus tipos base.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que é <strong>Interface Segregation Principle</strong> (ISP)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Interfaces pequenas e específicas, em vez de uma interface grande.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que é <strong>Dependency Inversion Principle</strong> (DIP)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Dependa de abstrações, não de implementações concretas.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> O que é <strong>arquitetura hexagonal</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Arquitetura onde o domínio está no centro, com adaptadores para entrada (HTTP) e saída (banco, fila).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que é <strong>DDD</strong> (Domain-Driven Design)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Abordagem de design focada no domínio do negócio e linguagem ubíqua.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>refactoring</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Processo de melhorar a estrutura interna do código sem alterar seu comportamento externo.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é <strong>teste unitário</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Teste que verifica a menor unidade de código (função/método) isoladamente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> O que é <strong>teste de integração</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Teste que verifica a interação entre múltiplos componentes (ex: código + banco).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que é <strong>teste E2E</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Teste que verifica o fluxo completo do sistema, do início ao fim.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> O que é <strong>TDD</strong> (Test-Driven Development)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Prática onde os testes são escritos antes do código: Red → Green → Refactor.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <strong>design pattern</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Solução reutilizável para problemas comuns em design de software.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que é <strong>linguagem ubíqua</strong> no DDD?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Vocabulário comum compartilhado entre desenvolvedores e especialistas de domínio.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é <strong>injeção de dependência</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Padrão onde as dependências de um objeto são fornecidas externamente em vez de criadas internamente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <strong>mock</strong> em testes?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Objeto simulado que substitui uma dependência real para isolar o teste.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que é <strong>cobertura de código</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Medida de quanto código é executado pelos testes.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que é <strong>CI/CD</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Integração Contínua / Entrega Contínua: práticas de automação de build, teste e deploy.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> O que é <strong>boa prática</strong> em engenharia de software?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Prática recomendada que melhora qualidade, manutenibilidade e eficiência do código.</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

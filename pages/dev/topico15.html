@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Redes</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>🌐 Redes: Da Tomada ao HTTPS</h1>
+    <p class="subtitle">O modelo em camadas, IP/TCP, HTTP por dentro, DNS e TLS — com as ferramentas (curl, dig) que transformam "a internet caiu" em diagnóstico de 2 minutos.</p>
+
+    <!-- Seção 1: O Modelo -->
+    <div class="section">
+        <h2>1. O Modelo em Camadas (Prático de 4)</h2>
+        <table>
+            <tr><th>Camada</th><th>Protagonistas</th><th>Responsabilidade</th></tr>
+            <tr><td>Aplicação</td><td>HTTP, DNS, TLS, MQTT</td><td>o significado das mensagens</td></tr>
+            <tr><td>Transporte</td><td>TCP, UDP</td><td>entregar ao processo certo (portas), confiabilidade</td></tr>
+            <tr><td>Rede</td><td>IP</td><td>rotear pacotes entre redes</td></tr>
+            <tr><td>Enlace/física</td><td>Ethernet, Wi-Fi</td><td>bits no meio físico local</td></tr>
+        </table>
+        <p>Cada camada só conversa com as vizinhas — encapsulamento permite trocar Wi-Fi por cabo sem o HTTP saber.</p>
+    </div>
+
+    <!-- Seção 2: IP e TCP -->
+    <div class="section">
+        <h2>2. IP e TCP</h2>
+        <h3>IP</h3>
+        <ul>
+            <li>Endereços: <code>192.168.0.10</code></li>
+            <li>Sub-redes: CIDR (<code>/24</code> = 256 endereços)</li>
+            <li>Roteamento salto a salto</li>
+            <li>NAT: muitos privados atrás de um público</li>
+        </ul>
+
+        <h3>UDP</h3>
+        <p>Datagramas sem garantia — rápido, para DNS, streaming, telemetria tolerante a perda.</p>
+
+        <h3>TCP</h3>
+        <ul>
+            <li>Conexão com <strong>handshake de 3 vias</strong> (SYN → SYN-ACK → ACK)</li>
+            <li>Entrega ordenada e confiável (ACKs + retransmissão)</li>
+            <li>Controle de fluxo e congestionamento</li>
+        </ul>
+        <p><strong>Portas</strong>: 22 SSH, 80 HTTP, 443 HTTPS, 5432 Postgres, 1883 MQTT.</p>
+    </div>
+
+    <!-- Seção 3: HTTP -->
+    <div class="section">
+        <h2>3. HTTP Por Dentro</h2>
+        <pre><code>GET /api/users/42 HTTP/1.1
+Host: api.exemplo.com
+Accept: application/json
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{"id": 42, "name": "Ana"}</code></pre>
+
+        <h3>Métodos</h3>
+        <ul>
+            <li><strong>GET</strong> (ler), <strong>POST</strong> (criar), <strong>PUT/PATCH</strong> (atualizar), <strong>DELETE</strong></li>
+            <li>GET/PUT/DELETE são <strong>idempotentes</strong> — repetir não muda o resultado</li>
+        </ul>
+
+        <h3>Status</h3>
+        <p>2xx ok · 3xx redireciona · 4xx erro do cliente · 5xx erro do servidor</p>
+
+        <h3>Evolução</h3>
+        <p>HTTP/1.1 (texto, 1 req por vez) → HTTP/2 (binário, multiplexado) → HTTP/3 (QUIC sobre UDP)</p>
+    </div>
+
+    <!-- Seção 4: DNS e TLS -->
+    <div class="section">
+        <h2>4. DNS e TLS</h2>
+        <h3>DNS</h3>
+        <p>Traduz nome → IP: resolver → raiz → TLD (.com) → autoritativo.</p>
+        <ul>
+            <li><strong>Registros</strong>: A/AAAA (IP), CNAME (apelido), MX, TXT</li>
+            <li><strong>TTL</strong>: tempo de cache (por isso mudança de DNS "demora a propagar")</li>
+        </ul>
+
+        <h3>TLS</h3>
+        <p>Dá o <strong>S</strong> do HTTPS:</p>
+        <ul>
+            <li>Handshake com <strong>certificado</strong> (servidor prova quem é, assinado por uma CA)</li>
+            <li>Acordo de chaves → canal simétrico cifrado</li>
+            <li>Garante: <strong>confidencialidade + integridade + autenticidade</strong></li>
+        </ul>
+    </div>
+
+    <!-- Seção 5: Ferramentas -->
+    <div class="section">
+        <h2>5. A Caixa de Ferramentas</h2>
+        <pre><code>curl -v https://api.exemplo.com/health   # requisição com bastidores
+dig api.exemplo.com                      # resolução DNS
+ping 8.8.8.8 && traceroute 8.8.8.8      # alcance e rota
+ss -tlnp                                 # portas abertas e quem escuta
+tcpdump -i any port 5432 -w cap.pcap    # capturar tráfego</code></pre>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Ordene o que acontece ao abrir <code>https://site.com</code>: handshake TCP, consulta DNS, handshake TLS, requisição HTTP.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">DNS → TCP → TLS → HTTP</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Por que DNS usa UDP na consulta comum? E por que TCP existe como alternativa?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Consulta pequena, 1 ida e volta, perda tolerável (repete); TCP para respostas grandes/transferência de zona.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> POST é idempotente? E PUT? Por que isso importa para retry automático?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">POST não (cria de novo); PUT sim (mesmo estado final) — retry seguro exige idempotência ou chave de deduplicação.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Quantos hosts úteis tem um <code>/24</code>? O que o NAT resolve?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">254 (rede + broadcast fora); NAT: escassez de IPv4, muitos privados atrás de 1 público.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Um <code>curl -v</code> mostra "connection refused" vs "timeout": o que cada um sugere?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Refused: chegou e a porta está fechada (serviço parado); timeout: nada respondeu (firewall/rota/host fora).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> Explique TTL do DNS e seu efeito numa migração de servidor.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Tempo de cache da resposta: TTL alto atrasa a virada; baixe o TTL antes de migrar.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que é <strong>TCP handshake de 3 vias</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">SYN → SYN-ACK → ACK: estabelecimento da conexão TCP.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> Qual a diferença entre <strong>TCP</strong> e <strong>UDP</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">TCP: orientado a conexão, confiável, ordenado; UDP: sem conexão, não confiável, mais rápido.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que é <strong>porta</strong> em redes?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Número que identifica um processo/serviço em um host (ex: 80 para HTTP).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que é <strong>DNS</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Sistema que traduz nomes de domínio para endereços IP.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que é <strong>TLS</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Protocolo que garante comunicação segura na internet (criptografia, autenticação, integridade).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> O que é <strong>HTTP</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Protocolo de transferência de hipertexto — base da World Wide Web.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> Qual a diferença entre <strong>HTTP</strong> e <strong>HTTPS</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">HTTPS = HTTP + TLS (criptografia).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>NAT</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Tradução de endereço de rede: permite múltiplos dispositivos compartilharem um IP público.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é <strong>sub-rede</strong> (subnet)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Divisão lógica de uma rede IP.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> O que é <strong>CIDR</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Notação para sub-redes: <code>192.168.0.0/24</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que é <strong>pacote</strong> (packet)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Unidade de dados transmitida em uma rede.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> O que é <strong>firewall</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Sistema que controla o tráfego de rede baseado em regras de segurança.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <strong>proxy</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Servidor intermediário que encaminha requisições entre cliente e servidor.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que é <strong>CDN</strong> (Content Delivery Network)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Rede distribuída de servidores que entrega conteúdo com baixa latência.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é <strong>WebSocket</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Protocolo que mantém conexão bidirecional persistente entre cliente e servidor.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <strong>gRPC</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Framework RPC de alto desempenho usando HTTP/2 e Protobuf.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que é <strong>MQTT</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Protocolo leve de mensageria para IoT, baseado em publish/subscribe.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que é <strong>latência</strong> em redes?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Tempo que um pacote leva para viajar da origem ao destino.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> O que é <strong>banda</strong> (bandwidth)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Capacidade máxima de transmissão de dados em uma rede.</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

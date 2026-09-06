@@ -1,45 +1,190 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Developer Journey: From Junior to Senior</title>
-  <link rel="stylesheet" href="assets/css/style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Do Zero à Maestria - Dashboard</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>" />
 </head>
 <body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h2>🚀 Do Zero à Maestria</h2>
+                <p class="subtitle">Dev + Inglês</p>
+            </div>
+            
+            <!-- Barra de Busca -->
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="🔍 Buscar tópico..." />
+            </div>
 
-  <!-- Sidebar Fixa -->
-  <aside>
-    <div class="brand">🚀 Dev Journey</div>
+            <!-- Controles -->
+            <div class="sidebar-controls">
+                <button id="themeToggle" class="control-btn" title="Alternar tema">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="flashcardToggle" class="control-btn" title="Modo Flashcards">
+                    <i class="fas fa-layer-group"></i>
+                </button>
+                <button id="resetProgressBtn" class="control-btn" title="Resetar progresso">
+                    <i class="fas fa-undo"></i>
+                </button>
+            </div>
 
-    <nav class="nav-group">
-      <div class="nav-label">Geral</div>
-      <a href="#" class="nav-link active" data-page="pages/dashboard.html">
-        📊 Dashboard
-      </a>
+            <!-- Menu Mobile Toggle -->
+            <button id="menuToggle" class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <nav class="nav" id="navContainer">
+                <div class="nav-section">
+                    <h3>💻 Desenvolvimento</h3>
+                    <ul id="devList">
+                        <li><a href="#" data-page="dev/topico1.html" class="active"><span class="topic-icon">🐧</span> 1. Linux & Terminal</a></li>
+                        <li><a href="#" data-page="dev/topico2.html"><span class="topic-icon">📦</span> 2. Git de Verdade</a></li>
+                        <li><a href="#" data-page="dev/topico3.html"><span class="topic-icon">⚙️</span> 3. C - Fundamentos</a></li>
+                        <li><a href="#" data-page="dev/topico4.html"><span class="topic-icon">🔧</span> 4. Funções e Escopo</a></li>
+                        <li><a href="#" data-page="dev/topico5.html"><span class="topic-icon">📊</span> 5. Arrays e Strings</a></li>
+                        <li><a href="#" data-page="dev/topico6.html"><span class="topic-icon">📍</span> 6. Ponteiros</a></li>
+                        <li><a href="#" data-page="dev/topico7.html"><span class="topic-icon">🏗️</span> 7. Structs e Memória</a></li>
+                        <li><a href="#" data-page="dev/topico8.html"><span class="topic-icon">🧠</span> 8. Lógica e Provas</a></li>
+                        <li><a href="#" data-page="dev/topico9.html"><span class="topic-icon">🔢</span> 9. Contagem</a></li>
+                        <li><a href="#" data-page="dev/topico10.html"><span class="topic-icon">📈</span> 10. Big-O</a></li>
+                        <li><a href="#" data-page="dev/topico11.html"><span class="topic-icon">🌳</span> 11. Estruturas de Dados</a></li>
+                        <li><a href="#" data-page="dev/topico12.html"><span class="topic-icon">🔄</span> 12. Algoritmos Clássicos</a></li>
+                        <li><a href="#" data-page="dev/topico13.html"><span class="topic-icon">💻</span> 13. Arquitetura</a></li>
+                        <li><a href="#" data-page="dev/topico14.html"><span class="topic-icon">🖥️</span> 14. Sistemas Operacionais</a></li>
+                        <li><a href="#" data-page="dev/topico15.html"><span class="topic-icon">🌐</span> 15. Redes</a></li>
+                        <li><a href="#" data-page="dev/topico16.html"><span class="topic-icon">🗄️</span> 16. SQL & PostgreSQL</a></li>
+                        <li><a href="#" data-page="dev/topico17.html"><span class="topic-icon">📦</span> 17. NoSQL</a></li>
+                        <li><a href="#" data-page="dev/topico18.html"><span class="topic-icon">🏛️</span> 18. Engenharia de Software</a></li>
+                        <li><a href="#" data-page="dev/topico19.html"><span class="topic-icon">🔗</span> 19. Backend Avançado</a></li>
+                        <li><a href="#" data-page="dev/topico20.html"><span class="topic-icon">🐹</span> 20. Go</a></li>
+                        <li><a href="#" data-page="dev/topico21.html"><span class="topic-icon">🐳</span> 21. Docker</a></li>
+                        <li><a href="#" data-page="dev/topico22.html"><span class="topic-icon">☸️</span> 22. Kubernetes</a></li>
+                        <li><a href="#" data-page="dev/topico23.html"><span class="topic-icon">🏗️</span> 23. Terraform</a></li>
+                        <li><a href="#" data-page="dev/topico24.html"><span class="topic-icon">📊</span> 24. Observabilidade</a></li>
+                        <li><a href="#" data-page="dev/topico25.html"><span class="topic-icon">🌍</span> 25. Sistemas Distribuídos</a></li>
+                        <li><a href="#" data-page="dev/topico26.html"><span class="topic-icon">🔒</span> 26. Segurança</a></li>
+                        <li><a href="#" data-page="dev/topico27.html"><span class="topic-icon">⚡</span> 27. Performance</a></li>
+                        <li><a href="#" data-page="dev/topico28.html"><span class="topic-icon">🏛️</span> 28. System Design</a></li>
+                        <li><a href="#" data-page="dev/topico29.html"><span class="topic-icon">📖</span> 29. Código Fonte & OS</a></li>
+                        <li><a href="#" data-page="dev/topico30.html"><span class="topic-icon">🎯</span> 30. Projetos & Execução</a></li>
+                    </ul>
+                </div>
 
-      <div class="nav-label">Módulos de Estudo</div>
-      <a href="#" class="nav-link" data-page="pages/topic_01_linux_cli.html">
-        🐧 01. Linux CLI & Streams
-      </a>
-      <a href="#" class="nav-link" style="opacity:0.5; cursor:not-allowed;">
-        ⚙️ 02. Fundamentos de C (Em Breve)
-      </a>
-      <a href="#" class="nav-link" style="opacity:0.5; cursor:not-allowed;">
-        🧠 03. Ponteiros & Memória (Em Breve)
-      </a>
-      <a href="#" class="nav-link" style="opacity:0.5; cursor:not-allowed;">
-        🇬🇧 04. Technical English A1 (Em Breve)
-      </a>
-    </nav>
-  </aside>
+                <div class="nav-section">
+                    <h3>🇬🇧 Inglês</h3>
+                    <ul id="inglesList">
+                        <li><a href="#" data-page="ingles/topico1.html"><span class="topic-icon">📚</span> 1. Pronouns</a></li>
+                        <li><a href="#" data-page="ingles/topico2.html"><span class="topic-icon">📝</span> 2. Verb To Be</a></li>
+                        <li><a href="#" data-page="ingles/topico3.html"><span class="topic-icon">⏰</span> 3. Present Simple</a></li>
+                        <li><a href="#" data-page="ingles/topico4.html"><span class="topic-icon">🔄</span> 4. Present Continuous</a></li>
+                        <li><a href="#" data-page="ingles/topico5.html"><span class="topic-icon">❓</span> 5. Questions</a></li>
+                        <li><a href="#" data-page="ingles/topico6.html"><span class="topic-icon">🔗</span> 6. Connectors</a></li>
+                        <li><a href="#" data-page="ingles/topico7.html"><span class="topic-icon">🌅</span> 7. Daily Routine</a></li>
+                        <li><a href="#" data-page="ingles/topico8.html"><span class="topic-icon">👤</span> 8. Describing People</a></li>
+                        <li><a href="#" data-page="ingles/topico9.html"><span class="topic-icon">🏠</span> 9. Describing Places</a></li>
+                        <li><a href="#" data-page="ingles/topico10.html"><span class="topic-icon">📅</span> 10. Past Simple</a></li>
+                        <li><a href="#" data-page="ingles/topico11.html"><span class="topic-icon">🔮</span> 11. Future</a></li>
+                        <li><a href="#" data-page="ingles/topico12.html"><span class="topic-icon">📊</span> 12. Comparatives</a></li>
+                        <li><a href="#" data-page="ingles/topico13.html"><span class="topic-icon">🎯</span> 13. Modal Verbs</a></li>
+                        <li><a href="#" data-page="ingles/topico14.html"><span class="topic-icon">📖</span> 14. Storytelling</a></li>
+                        <li><a href="#" data-page="ingles/topico15.html"><span class="topic-icon">✨</span> 15. Present Perfect</a></li>
+                    </ul>
+                </div>
 
-  <!-- Área onde as páginas serão carregadas -->
-  <main id="content-area">
-    <!-- O JavaScript irá injetar o conteúdo aqui -->
-  </main>
+                <!-- Footer do Sidebar -->
+                <div class="sidebar-footer">
+                    <div class="stats-mini">
+                        <span id="miniProgress">0%</span>
+                        <span id="miniStreak">🔥 0</span>
+                    </div>
+                    <p class="sidebar-credit">📚 45 tópicos · 1.125 exercícios</p>
+                </div>
+            </nav>
+        </aside>
 
-  <script src="assets/js/navigation.js"></script>
-  <script src="assets/js/quiz.js"></script>
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <div>
+                    <h1 id="page-title">Selecione um tópico</h1>
+                    <span class="topic-badge" id="topicBadge">Desenvolvimento</span>
+                </div>
+                <div class="header-actions">
+                    <button id="notesToggle" class="header-btn" title="Anotações">
+                        <i class="fas fa-sticky-note"></i>
+                    </button>
+                    <button id="toggleSidebar" class="header-btn" title="Ocultar sidebar">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="progress-bar">
+                        <span id="progress-text">0%</span>
+                        <div class="progress-track">
+                            <div id="progress-fill" style="width:0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="content-area" class="content-area">
+                <div class="welcome">
+                    <div class="welcome-content">
+                        <div class="welcome-icon">🚀</div>
+                        <h2>Do Zero à Maestria</h2>
+                        <p>Selecione um tópico na barra lateral para começar sua jornada.</p>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon">📚</div>
+                                <h3>45</h3>
+                                <p>Tópicos</p>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">📝</div>
+                                <h3>1.125</h3>
+                                <p>Exercícios</p>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">✅</div>
+                                <h3 id="completedStats">0</h3>
+                                <p>Concluídos</p>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">🔥</div>
+                                <h3 id="streakStats">0</h3>
+                                <p>Dias seguidos</p>
+                            </div>
+                        </div>
+                        <div class="quote">
+                            <p>"Sênior não é um cargo que se recebe — é um sistema que se constrói."</p>
+                            <span>— Do Zero ao Sênior</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Notes Panel -->
+        <div id="notesPanel" class="notes-panel">
+            <div class="notes-header">
+                <h3>📝 Anotações</h3>
+                <button id="closeNotes" class="close-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="notes-body">
+                <div class="notes-topic" id="notesTopic">Tópico: </div>
+                <textarea id="notesTextarea" placeholder="Escreva suas anotações sobre este tópico..."></textarea>
+                <div class="notes-actions">
+                    <button id="saveNotes" class="save-notes-btn"><i class="fas fa-save"></i> Salvar Anotações</button>
+                    <span id="notesStatus" class="notes-status"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/main.js"></script>
 </body>
 </html>

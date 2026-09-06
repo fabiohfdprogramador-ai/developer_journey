@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Docker</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>🐳 Docker — Empacotando de Verdade</h1>
+    <p class="subtitle">Imagem × container, um Dockerfile multi-stage exemplar e as práticas que separam imagem de 1 GB insegura de imagem de 20 MB de produção.</p>
+
+    <!-- Seção 1: O Modelo -->
+    <div class="section">
+        <h2>1. O Modelo</h2>
+        <ul>
+            <li><strong>Imagem</strong> = sistema de arquivos em camadas + metadados (imutável)</li>
+            <li><strong>Container</strong> = processo isolado rodando a partir da imagem</li>
+            <li><strong>Namespaces</strong> = visão própria de processos/rede/arquivos</li>
+            <li><strong>Cgroups</strong> = limites de CPU/RAM (o kernel do cap. 14 em ação)</li>
+            <li><strong>Registry</strong> = guarda imagens versionadas</li>
+        </ul>
+        <p style="color:var(--warning);">💡 Container <strong>não é VM</strong> — compartilha o mesmo kernel do host.</p>
+    </div>
+
+    <!-- Seção 2: Multi-stage Exemplar -->
+    <div class="section">
+        <h2>2. Multi-stage Exemplar (Go)</h2>
+        <pre><code>FROM golang:1.22 AS build
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download  # camada cacheável: deps mudam pouco
+COPY . .
+RUN CGO_ENABLED=0 go build -o /out/app ./cmd/api
+
+# --- runtime ---
+FROM gcr.io/distroless/static
+COPY --from=build /out/app /app
+USER nonroot
+ENTRYPOINT ["/app"]</code></pre>
+        <p>Resultado: imagem final de <strong>~15 MB</strong>, sem compilador, sem shell, não-root.</p>
+    </div>
+
+    <!-- Seção 3: Práticas -->
+    <div class="section">
+        <h2>3. Práticas</h2>
+        <ul>
+            <li>Ordene o Dockerfile do que <strong>menos muda</strong> para o que <strong>mais muda</strong> (cache de camadas)</li>
+            <li><strong>.dockerignore</strong></li>
+            <li>Uma <strong>responsabilidade</strong> por container</li>
+            <li>Logs no <strong>stdout</strong></li>
+            <li>Config por <strong>variável de ambiente</strong></li>
+            <li>Tags <strong>imutáveis</strong> (nada de :latest em produção)</li>
+        </ul>
+        <pre><code>docker build -t api:1.4.2 .
+docker run -p 8080:8080 --rm api:1.4.2
+docker compose up -d  # app + postgres + redis no dev</code></pre>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Por que copiar go.mod e rodar go mod download antes de copiar o código?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Cache: código muda todo commit; dependências não — build 10× mais rápido.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Container é VM? Explique com namespaces/cgroups.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Não: processos no MESMO kernel com visão e limites isolados; VM tem kernel próprio.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Três motivos para distroless/alpine no estágio final.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Tamanho, superfície de ataque, startup.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Sua imagem tem 1,2 GB. Liste 4 suspeitos e a correção de cada.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Estágio único com toolchain (→ multi-stage); base gorda (→ distroless); sem .dockerignore (→ criar); artefatos de build/teste copiados (→ copiar só o binário/dist).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> O que é <strong>Dockerfile</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Arquivo com instruções para construir uma imagem Docker.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> O que é <strong>imagem Docker</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Pacote imutável com tudo necessário para rodar uma aplicação (código, runtime, dependências).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que é <strong>container Docker</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Instância em execução de uma imagem Docker.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> O que é <strong>Docker Hub</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Registry público de imagens Docker.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que é <strong>docker compose</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ferramenta para definir e rodar aplicações multi-container.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que é <strong>camada</strong> (layer) em imagens Docker?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Cada instrução no Dockerfile cria uma camada imutável; camadas são cacheadas e reutilizadas.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que é <strong>multi-stage build</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Técnica que usa múltiplos estágios no Dockerfile para construir e depois copiar apenas o necessário para a imagem final.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> O que é <strong>.dockerignore</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Arquivo que especifica quais arquivos não devem ser copiados para o contexto de build.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que é <strong>ENTRYPOINT</strong> no Dockerfile?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Comando executado quando o container inicia.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>CMD</strong> no Dockerfile?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Comando padrão que pode ser sobrescrito ao rodar o container.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é <strong>COPY</strong> no Dockerfile?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Copia arquivos do host para a imagem.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> O que é <strong>ADD</strong> no Dockerfile?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Similar ao COPY, mas também pode extrair arquivos tar e baixar URLs.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que é <strong>RUN</strong> no Dockerfile?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Executa comandos durante a construção da imagem.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> O que é <strong>ENV</strong> no Dockerfile?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Define variáveis de ambiente na imagem.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <strong>EXPOSE</strong> no Dockerfile?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Documenta que o container escuta em uma porta específica.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que é <strong>VOLUME</strong> no Dockerfile?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Define um ponto de montagem para volumes persistentes.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é <strong>docker build</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Comando que constrói uma imagem a partir de um Dockerfile.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <strong>docker run</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Comando que cria e inicia um container a partir de uma imagem.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que é <strong>docker ps</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Comando que lista containers em execução.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que é <strong>docker stop</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Comando que para um container em execução.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> O que é <strong>docker rm</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Comando que remove um container parado.</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Segurança</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>🔒 Segurança Aplicada — OWASP no Seu Código</h1>
+    <p class="subtitle">Os ataques que realmente acontecem — injeção, XSS, CSRF, auth quebrada — com o exemplo vulnerável e a correção lado a lado, mais senhas, segredos e supply chain.</p>
+
+    <!-- Seção 1: SQL Injection -->
+    <div class="section">
+        <h2>1. SQL Injection — O Clássico Eterno</h2>
+        <pre><code>// VULNERÁVEL: concatenação
+db.query("SELECT * FROM users WHERE email = '" + email + "'");
+// entrada: ' OR '1'='1  - retorna TODOS os usuários</code></pre>
+        <pre><code>// CORRETO: parâmetros (o driver separa código de dados)
+db.query("SELECT * FROM users WHERE email = $1", [email]);</code></pre>
+        <p style="color:var(--danger);">⚠️ Regra absoluta: <strong>dados nunca viram código</strong>.</p>
+        <ul>
+            <li>Queries parametrizadas/ORM <strong>sempre</strong></li>
+            <li>Valide entrada como defesa extra, não como única</li>
+        </ul>
+    </div>
+
+    <!-- Seção 2: XSS e CSRF -->
+    <div class="section">
+        <h2>2. XSS e CSRF</h2>
+        
+        <h3>XSS (Cross-Site Scripting)</h3>
+        <ul>
+            <li>Entrada do usuário renderizada como HTML executa script no navegador da vítima</li>
+            <li><strong>Defesa</strong>: escape na saída (frameworks modernos fazem por padrão)</li>
+            <li>Não desligue com <code>dangerouslySetInnerHTML</code> / <code>v-html</code> sem sanitizar</li>
+            <li><strong>Content-Security-Policy</strong>, cookies <strong>HttpOnly</strong></li>
+        </ul>
+
+        <h3>CSRF (Cross-Site Request Forgery)</h3>
+        <ul>
+            <li>Site malicioso faz o navegador logado disparar POST /transfer no seu app</li>
+            <li><strong>Defesa</strong>: token anti-CSRF por sessão + <code>SameSite=Lax/Strict</code> no cookie</li>
+            <li>APIs por token no header (não cookie) são naturalmente menos expostas</li>
+        </ul>
+    </div>
+
+    <!-- Seção 3: Senhas, Segredos e Supply Chain -->
+    <div class="section">
+        <h2>3. Senhas, Segredos e Supply Chain</h2>
+        
+        <h3>Senhas</h3>
+        <ul>
+            <li>Nunca em claro</li>
+            <li>Nunca MD5/SHA1 puros (rápidos = força bruta fácil)</li>
+            <li>Use <strong>bcrypt/argon2</strong> (lentos e com salt por design)</li>
+            <li>Login com resposta homogênea ("credenciais inválidas")</li>
+            <li><strong>Rate limit</strong> no login</li>
+        </ul>
+
+        <h3>Segredos</h3>
+        <ul>
+            <li>Fora do código e do repositório — variáveis de ambiente/secret manager</li>
+            <li>Rotação de segredos</li>
+            <li style="color:var(--danger);">⚠️ Commitou segredo? <strong>Troque o segredo</strong> (o histórico do Git lembra)</li>
+        </ul>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Explique por que <code>WHERE id = ${req.params.id}</code> é vulnerável mesmo id "sendo número".</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Nada garante que é número: <code>1; DROP TABLE users</code> entra como código — parametrize sempre.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Um comentário de blog imprime <code>&lt;script&gt;</code> no navegador de quem lê. Nomeie o ataque e duas defesas.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Stored XSS; escape na renderização + CSP (+ sanitização de HTML permitido).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Por que bcrypt e não SHA-256 para senha? (Duas razões.)</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Lento por design (custo de força bruta) e salt embutido (rainbow tables inúteis).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> SameSite=Lax protege contra o quê, exatamente?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Envio automático do cookie em requisições cross-site (o motor do CSRF).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Faça o mini threat model (4 perguntas) do endpoint de webhook de pagamento do cap. 19.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ex.: validar assinatura do gateway, idempotência por event_id, rate limit, segredo de webhook rotacionável, logs sem PII.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> O que é <strong>OWASP Top 10</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Lista dos 10 riscos de segurança mais críticos para aplicações web.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que é <strong>SQL Injection</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ataque onde dados maliciosos são inseridos em queries SQL.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> O que é <strong>XSS</strong> (Cross-Site Scripting)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ataque onde scripts maliciosos são injetados em páginas web.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que é <strong>CSRF</strong> (Cross-Site Request Forgery)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ataque onde um site malicioso força o navegador a fazer requisições não autorizadas.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que é <strong>bcrypt</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Algoritmo de hashing para senhas, lento por design e com salt.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que é <strong>argon2</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Algoritmo moderno de hashing para senhas, vencedor do Password Hashing Competition.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> O que é <strong>salt</strong> em hashing?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Valor aleatório adicionado à senha antes do hash para evitar rainbow tables.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que é <strong>rainbow table</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Tabela pré-computada de hashes para quebrar senhas.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>Content-Security-Policy</strong> (CSP)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Header HTTP que define fontes permitidas de conteúdo (mitiga XSS).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é <strong>HttpOnly</strong> em cookies?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Cookie que não pode ser acessado via JavaScript (mitiga XSS).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> O que é <strong>Secure</strong> em cookies?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Cookie enviado apenas via HTTPS.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que é <strong>JWT</strong> e como usá-lo com segurança?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">JSON Web Token: use HTTPS, vida curta, assinatura forte, não guarde segredos no payload.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> O que é <strong>OAuth2</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Framework de autorização que permite delegação de acesso sem compartilhar credenciais.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <strong>OIDC</strong> (OpenID Connect)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Camada de identidade sobre OAuth2 (autenticação + autorização).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que é <strong>supply chain attack</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ataque via dependências ou ferramentas da cadeia de desenvolvimento (ex: pacotes NPM maliciosos).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é <strong>threat modeling</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Processo de identificar ameaças e vulnerabilidades em um sistema.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <strong>least privilege</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Princípio onde cada componente tem apenas as permissões mínimas necessárias.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que é <strong>security hardening</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Processo de fortalecer a segurança de um sistema (patches, configurações).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que é <strong>CORS</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Cross-Origin Resource Sharing: mecanismo que permite ou restringe requisições cross-origin.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> O que é <strong>HTTPS</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">HTTP + TLS: comunicação criptografada entre cliente e servidor.</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

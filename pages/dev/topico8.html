@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Lógica e Provas</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>🧠 Lógica e Provas — Pensar como a Máquina Exige</h1>
+    <p class="subtitle">Proposições, implicação, e as técnicas de prova — com a indução trabalhada de verdade. O alicerce invisível de tipos, testes, invariantes e recursão.</p>
+
+    <!-- Seção 1: Proposições e Conectivos -->
+    <div class="section">
+        <h2>1. Proposições e Conectivos</h2>
+        <p>Uma proposição é algo <strong>verdadeiro ou falso</strong>.</p>
+        <ul>
+            <li><strong>¬</strong> (não)</li>
+            <li><strong>∧</strong> (e) — conjunção</li>
+            <li><strong>∨</strong> (ou) — disjunção</li>
+            <li><strong>→</strong> (implica) — implicação</li>
+            <li><strong>↔</strong> (se e somente se) — bicondicional</li>
+        </ul>
+
+        <h3>A Tabela que Mais Derruba Gente — Implicação</h3>
+        <p><code>p → q</code> só é falsa quando <strong>p é V e q é F</strong>:</p>
+        <table>
+            <tr><th>p</th><th>q</th><th>p → q</th></tr>
+            <tr><td>V</td><td>V</td><td>V</td></tr>
+            <tr><td>V</td><td>F</td><td>F</td></tr>
+            <tr><td>F</td><td>V</td><td>V</td></tr>
+            <tr><td>F</td><td>F</td><td>V</td></tr>
+        </table>
+
+        <ul>
+            <li><strong>Contrapositiva</strong>: <code>p → q ≡ ¬q → ¬p</code> (equivalentes)</li>
+            <li><strong>Recíproca</strong>: <code>q → p</code> <strong style="color:var(--danger);">não é equivalente</strong></li>
+            <li><strong>De Morgan</strong>: <code>¬(p ∧ q) ≡ ¬p ∨ ¬q</code> · <code>¬(p ∨ q) ≡ ¬p ∧ ¬q</code></li>
+        </ul>
+    </div>
+
+    <!-- Seção 2: Quantificadores -->
+    <div class="section">
+        <h2>2. Quantificadores</h2>
+        <ul>
+            <li><strong>∀</strong> (para todo) — universal</li>
+            <li><strong>∃</strong> (existe) — existencial</li>
+        </ul>
+        <p>Negar troca um pelo outro:</p>
+        <ul>
+            <li><code>¬(∀x, P(x)) ≡ ∃x, ¬P(x)</code></li>
+            <li><code>¬(∃x, P(x)) ≡ ∀x, ¬P(x)</code></li>
+        </ul>
+        <p style="color:var(--warning);">💡 "Nem todo teste passou" = "existe teste que falhou".</p>
+    </div>
+
+    <!-- Seção 3: Técnicas de Prova -->
+    <div class="section">
+        <h2>3. Técnicas de Prova</h2>
+        
+        <h3>Direta</h3>
+        <p>Assuma a hipótese, deduza a tese.</p>
+        <p><strong>Exemplo</strong>: soma de dois pares é par: <code>2a + 2b = 2(a + b)</code>.</p>
+
+        <h3>Contraposição</h3>
+        <p>Prove <code>¬q → ¬p</code>.</p>
+        <p><strong>Exemplo</strong>: se n² é par, n é par — prova-se "se n é ímpar, n² é ímpar": <code>(2k+1)² = 2(2k²+2k)+1</code>.</p>
+
+        <h3>Contradição</h3>
+        <p>Assuma que a tese é falsa e derive um absurdo.</p>
+        <p><strong>Exemplo clássico</strong>: √2 é irracional.</p>
+    </div>
+
+    <!-- Seção 4: Indução -->
+    <div class="section">
+        <h2>4. Indução — A Técnica Número 1</h2>
+        <p>Para provar <code>P(n)</code> para todo <code>n ≥ n₀</code>:</p>
+        <ol>
+            <li><strong>Base</strong>: prove <code>P(n₀)</code></li>
+            <li><strong>Passo</strong>: assuma <code>P(k)</code> (hipótese de indução) e prove <code>P(k+1)</code></li>
+        </ol>
+
+        <h3>Prova Trabalhada — A Soma de Gauss</h3>
+        <p>Afirmação: <code>1 + 2 + ... + n = n(n+1)/2</code></p>
+        <ul>
+            <li><strong>Base (n=1)</strong>: <code>1 = 1·2/2</code> ✓</li>
+            <li><strong>Passo</strong>: suponha válida para k. Então <code>1 + ... + k + (k+1) = k(k+1)/2 + (k+1) = (k+1)(k+2)/2</code> ✓</li>
+        </ul>
+
+        <h3>Indução Encontra Código</h3>
+        <p>Recursão correta = indução executável:</p>
+        <ul>
+            <li><strong>Caso base</strong> ⇔ Base</li>
+            <li><strong>Chamada menor</strong> ⇔ Hipótese</li>
+        </ul>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Negue com De Morgan: "o deploy passou E os testes passaram".</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Deploy falhou OU testes falharam.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> "Se chove, o chão molha." O chão está molhado. Choveu? Que erro lógico seria afirmar que sim?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Não necessariamente — afirmar o consequente (a recíproca não vale).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Prove por indução: <code>1 + 3 + 5 + ... + (2n−1) = n²</code>.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Base 1=1²; passo: n² + (2n+1) = (n+1)². ✓</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Prove por indução: <code>2ⁿ > n</code> para todo <code>n ≥ 1</code>.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Base 2>1; passo: 2^(k+1) = 2·2^k > 2k ≥ k+1 (k ≥ 1). ✓</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Prove diretamente: o produto de dois ímpares é ímpar.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">(2a+1)(2b+1) = 2(2ab+a+b)+1. ✓</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> O que é uma <strong>tautologia</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Fórmula lógica que é verdadeira para todas as atribuições de valores às proposições.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que é uma <strong>contradição</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Fórmula lógica que é falsa para todas as atribuições de valores.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> Qual a negação de <code>∀x, (x > 0 → x² > 0)</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>∃x, (x > 0 ∧ x² ≤ 0)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que é <strong>indução forte</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Assume que P(1), P(2), ..., P(k) são verdadeiras para provar P(k+1).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que significa <strong>p → q</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">p implica q (se p é verdadeiro, então q é verdadeiro).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> Qual a contrapositiva de <code>p → q</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>¬q → ¬p</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> Qual a recíproca de <code>p → q</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>q → p</code> (não é equivalente à original).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que é <strong>prova por contradição</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Assume-se que a tese é falsa e deriva-se uma contradição.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>prova por contraposição</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Prova-se <code>¬q → ¬p</code> em vez de <code>p → q</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> Qual a negação de <code>p ∧ q</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>¬p ∨ ¬q</code> (Lei de De Morgan).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> Qual a negação de <code>p ∨ q</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>¬p ∧ ¬q</code> (Lei de De Morgan).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que é um <strong>invariante</strong> em programação?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Uma condição que se mantém verdadeira durante a execução de um programa (ex: em loops).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> Prove que <code>n² + n</code> é sempre par para qualquer inteiro n.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">n² + n = n(n+1). Produto de dois números consecutivos é sempre par.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <strong>prova por exaustão</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Verificar todos os casos possíveis (útil para conjuntos finitos pequenos).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> Qual a diferença entre <strong>indução</strong> e <strong>dedução</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Dedução vai do geral para o particular; indução vai do particular para o geral.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é <strong>∀x ∈ A, P(x)</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">"Para todo x pertencente a A, P(x) é verdadeiro."</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <strong>∃x ∈ A, P(x)</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">"Existe um x pertencente a A tal que P(x) é verdadeiro."</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> Prove por indução que <code>1² + 2² + ... + n² = n(n+1)(2n+1)/6</code>.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Base n=1: 1 = 1·2·3/6. Passo: some (k+1)² aos dois lados e simplifique.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que é <strong>lógica de predicados</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Extensão da lógica proposicional que inclui quantificadores (∀, ∃) e predicados sobre objetos.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> Qual a negação de <code>∀x, ∃y, P(x,y)</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>∃x, ∀y, ¬P(x,y)</code></span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Backend Avançado</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>🔗 Backend Avançado: APIs, Auth e Mensageria</h1>
+    <p class="subtitle">REST maduro, gRPC no lugar certo, autenticação sem copiar-e-colar (JWT/OAuth2/OIDC) e mensageria com as garantias reais — idempotência e outbox incluídos.</p>
+
+    <!-- Seção 1: REST Maduro -->
+    <div class="section">
+        <h2>1. REST Maduro (e quando gRPC)</h2>
+        <h3>Recursos e Verbos</h3>
+        <pre><code>GET /orders/42
+POST /orders
+PATCH /orders/42
+DELETE /orders/42</code></pre>
+        <ul>
+            <li><strong>Status corretos</strong>: 200 OK, 201 Created, 204 No Content, 400 Bad Request, 404 Not Found, 500 Internal Server Error</li>
+            <li><strong>Erros com corpo útil</strong>: código + mensagem + correlation id</li>
+            <li><strong>Paginação</strong>: cursor > offset para listas vivas</li>
+            <li><strong>Versionamento</strong>: /v1/api</li>
+            <li><strong>Rate limiting</strong>: 429 + Retry-After</li>
+        </ul>
+
+        <h3>gRPC</h3>
+        <ul>
+            <li>Contratos <strong>protobuf</strong> + HTTP/2</li>
+            <li>Ideal entre serviços (tipado, rápido, streaming)</li>
+            <li>REST/JSON segue rei na borda pública</li>
+        </ul>
+
+        <h3>GraphQL</h3>
+        <p>Quando o cliente precisa compor consultas flexíveis (mobile/BFF).</p>
+    </div>
+
+    <!-- Seção 2: Autenticação e Autorização -->
+    <div class="section">
+        <h2>2. Autenticação e Autorização de Verdade</h2>
+        
+        <h3>Sessão + Cookie</h3>
+        <ul>
+            <li>Estado no servidor</li>
+            <li>Simples, revogável</li>
+            <li>Ótimo para web clássica</li>
+        </ul>
+
+        <h3>JWT (JSON Web Token)</h3>
+        <pre><code>HEADER: { "alg": "HS256", "typ": "JWT" }
+PAYLOAD: { "sub": "user123", "exp": 1690000000, "roles": ["admin"] }
+SIGNATURE: HMACSHA256(base64UrlEncode(header) + "." + base64UrlEncode(payload), secret)</code></pre>
+        <ul>
+            <li>Token assinado com claims (sub, exp, roles)</li>
+            <li>Servidor valida a assinatura sem consultar banco → <strong>stateless</strong></li>
+            <li style="color:var(--danger);">⚠️ Revogação difícil → vida curta (minutos) + refresh token</li>
+            <li style="color:var(--danger);">⚠️ Payload é só codificado, não cifrado — não guarde segredos!</li>
+        </ul>
+
+        <h3>OAuth2</h3>
+        <ul>
+            <li>Delegação — "entrar com Google"</li>
+            <li>Papéis: resource owner (você), client (app), authorization server (Google), resource server (API)</li>
+            <li>Fluxo padrão: <strong>Authorization Code + PKCE</strong></li>
+        </ul>
+
+        <h3>OIDC (OpenID Connect)</h3>
+        <p>Camada de identidade sobre OAuth2 (id_token que diz quem você é).</p>
+
+        <p style="color:var(--warning);">💡 <strong>AuthN ≠ AuthZ</strong>: Autenticar é saber quem é; Autorizar é decidir o que pode (roles/policies no servidor, sempre).</p>
+    </div>
+
+    <!-- Seção 3: Mensageria -->
+    <div class="section">
+        <h2>3. Mensageria — Desacoplando com Filas e Tópicos</h2>
+        
+        <h3>Fila vs Tópico</h3>
+        <ul>
+            <li><strong>Fila</strong> (RabbitMQ/SQS): tarefa para um worker consumir (work queue)</li>
+            <li><strong>Tópico/Log</strong> (Kafka/NATS): evento publicado para vários consumidores independentes, com replay</li>
+        </ul>
+
+        <h3>Garantias</h3>
+        <ul>
+            <li>Padrão real: <strong>at-least-once</strong> — mensagem pode chegar duas vezes (timeout + retry)</li>
+            <li>"Exactly-once" fim a fim = at-least-once + <strong>idempotência</strong> sua</li>
+        </ul>
+
+        <h3>Idempotência</h3>
+        <pre><code>INSERT INTO processed_events(event_id) VALUES ('evt-123')
+ON CONFLICT (event_id) DO NOTHING;</code></pre>
+
+        <h3>Outbox Pattern</h3>
+        <pre><code>BEGIN;
+INSERT INTO orders (...) VALUES (...);
+INSERT INTO outbox (event_id, type, payload) VALUES (...);
+COMMIT;
+-- Relay publica os eventos para o broker</code></pre>
+        <ul>
+            <li>Resolve o dilema "salvei no banco mas caí antes de publicar"</li>
+            <li>Evento gravado na mesma transação → broker eventualmente consistente</li>
+        </ul>
+
+        <h3>Higiene de Consumo</h3>
+        <ul>
+            <li><strong>Retries com backoff</strong> + <strong>DLQ</strong> (Dead Letter Queue) para mensagens venenosas</li>
+            <li>Consumidores lentos = <strong>lag monitorado</strong></li>
+        </ul>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Desenhe o fluxo Authorization Code (com PKCE) em 6 passos.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">App → auth server (redirect + code_challenge) → login/consentimento → code → app troca code+verifier por tokens → API valida access token.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Por que JWT de 24 h sem refresh é um risco? Qual o desenho recomendado?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Roubo do token vale 24 h sem revogação; use access curto (5-15 min) + refresh revogável.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Fila x tópico: dois casos de uso claros para cada.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Fila: jobs de e-mail, processamento de imagem; Tópico: eventos de domínio para N consumidores, telemetria com replay.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Seu consumer morreu após processar e antes do ACK. O que acontece no restart e o que protege o sistema?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Mensagem volta (sem ACK) e reprocessa — a <strong>idempotência</strong> absorve a duplicata.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Especifique a tabela outbox (colunas) e o papel do relay.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Colunas: id, aggregate_id, type, payload, created_at, published_at; relay lê não publicados, publica no broker, marca.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> POST /orders com retry automático do cliente: que header/mecanismo evita pedido duplicado?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Idempotency-Key por tentativa lógica + tabela de deduplicação no servidor.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que é <strong>REST</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Estilo arquitetural para APIs baseado em recursos e verbos HTTP.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> O que é <strong>gRPC</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Framework RPC de alto desempenho usando HTTP/2 e Protobuf.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que é <strong>GraphQL</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Linguagem de consulta para APIs que permite clientes solicitarem exatamente os dados que precisam.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que é <strong>JWT</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">JSON Web Token: token assinado usado para autenticação e autorização.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que é <strong>OAuth2</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Framework de autorização que permite delegação de acesso sem compartilhar credenciais.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> O que é <strong>OIDC</strong> (OpenID Connect)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Camada de identidade sobre OAuth2 que adiciona autenticação.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> Qual a diferença entre <strong>autenticação</strong> e <strong>autorização</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Autenticação: verificar identidade ("quem é você?"); Autorização: verificar permissões ("o que você pode fazer?").</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>Kafka</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Plataforma de streaming distribuída para processamento de eventos em tempo real.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é <strong>RabbitMQ</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Message broker que implementa AMQP para filas e roteamento de mensagens.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> O que é <strong>idempotência</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Propriedade de uma operação onde o resultado é o mesmo independente de quantas vezes é executada.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que é <strong>Outbox Pattern</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Padrão onde eventos são salvos na mesma transação do banco e publicados posteriormente por um relay.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> O que é <strong>DLQ</strong> (Dead Letter Queue)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Fila para mensagens que não puderam ser processadas (venenosas).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <strong>rate limiting</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Controle de quantidade de requisições que um cliente pode fazer em um período.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que é <strong>HTTP/2</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Versão do HTTP com multiplexação, compressão de headers e server push.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é <strong>HTTP/3</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Versão do HTTP baseada em QUIC (UDP), com melhor performance e menor latência.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <strong>websocket</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Protocolo que mantém conexão bidirecional persistente entre cliente e servidor.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que é <strong>correlation id</strong> em APIs?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Identificador único que rastreia uma requisição através de múltiplos serviços.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que é <strong>backoff</strong> em retries?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Aumento progressivo do tempo de espera entre tentativas de retry (ex: exponencial).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> O que é <strong>jitter</strong> em retries?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Variação aleatória no tempo de espera para evitar thundering herd (todos retentando ao mesmo tempo).</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

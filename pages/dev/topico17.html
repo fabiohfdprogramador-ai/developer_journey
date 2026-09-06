@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>NoSQL</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>📦 Além do Relacional — O Panorama NoSQL</h1>
+    <p class="subtitle">Saber quando sair do relacional — e para qual família: chave-valor, documento, colunar. Ferramenta por problema, nunca por moda.</p>
+
+    <!-- Seção 1: Famílias NoSQL -->
+    <div class="section">
+        <h2>1. As Famílias NoSQL</h2>
+        <table>
+            <tr><th>Família</th><th>Exemplos</th><th>Modelo</th><th>Brilha em</th><th>Paga com</th></tr>
+            <tr><td>Chave-valor</td><td>Redis</td><td>chave → valor em RAM</td><td>cache, sessões, filas leves, rate limit</td><td>dados voláteis, RAM cara</td></tr>
+            <tr><td>Documento</td><td>MongoDB</td><td>JSON flexível</td><td>esquema fluido, protótipos, catálogos</td><td>joins fracos, consistência a configurar</td></tr>
+            <tr><td>Colunar</td><td>ClickHouse</td><td>colunas comprimidas</td><td>analytics, séries temporais, agregações massivas</td><td>péssimo para update pontual</td></tr>
+            <tr><td>Grafo</td><td>Neo4j</td><td>nós e arestas</td><td>relacionamentos profundos</td><td>nicho</td></tr>
+        </table>
+    </div>
+
+    <!-- Seção 2: Redis na Prática -->
+    <div class="section">
+        <h2>2. Redis na Prática</h2>
+        <pre><code>SET sessao:abc '{{...}}' EX 3600   /* TTL! */
+INCR contador
+EXPIRE chave 60
+GET chave
+DEL chave</code></pre>
+        <ul>
+            <li><strong>Cache-aside</strong>: leia do cache, se miss → busque no banco e popule</li>
+            <li><strong>TTL</strong> (Time To Live): expiração automática</li>
+            <li><strong>Pub/Sub</strong>: mensageria leve</li>
+            <li><strong>Estruturas</strong>: strings, lists, sets, sorted sets, hashes</li>
+        </ul>
+    </div>
+
+    <!-- Seção 3: Quando Usar Cada Um -->
+    <div class="section">
+        <h2>3. Regra de Ouro</h2>
+        <p style="color:var(--warning);">💡 Comece no <strong>Postgres</strong> (ele aguenta mais do que dizem — inclusive JSONB para o "documento" ocasional).</p>
+        <p>Adote um NoSQL quando um <strong>problema medido</strong> apontar a família certa.</p>
+        
+        <h3>Séries Temporais</h3>
+        <p>Telemetria, métricas: o padrão colunar comprime 10-100× e agrega absurdamente rápido.</p>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Sessões de usuário com expiração automática: qual banco e qual comando-chave?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Redis, <code>SET ... EX</code> (TTL nativo).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Dashboard que agrega bilhões de leituras de sensores por hora: família e porquê?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Colunar (ClickHouse): compressão + agregação por coluna.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Seu catálogo tem atributos que variam por tipo de produto. Duas soluções razoáveis?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Postgres com JSONB numa coluna de atributos; ou documento se TODO o acesso for por documento.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Por que "usar MongoDB porque JSON é mais fácil" costuma cobrar caro depois?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Sem esquema e sem joins fortes, a consistência migra para a aplicação — e integridade "de código" fura sob concorrência.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Qual a diferença entre <strong>chave-valor</strong> e <strong>documento</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Chave-valor: valor é opaco (string/binário); Documento: valor tem estrutura (JSON).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> O que é <strong>Redis</strong>? Para que serve?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Banco de dados chave-valor em memória, usado para cache, sessões, filas, rate limiting.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que é <strong>MongoDB</strong>? Para que serve?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Banco de dados orientado a documentos (JSON), usado para esquemas flexíveis e protótipos.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> O que é <strong>ClickHouse</strong>? Para que serve?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Banco de dados colunar, usado para analytics e séries temporais.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que é <strong>Neo4j</strong>? Para que serve?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Banco de dados de grafos, usado para relacionamentos complexos (ex: redes sociais, fraudes).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que é <strong>TTL</strong> no Redis?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Time To Live: tempo de vida de uma chave, após o qual ela é automaticamente removida.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que é <strong>cache-aside</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Padrão onde a aplicação consulta o cache primeiro; se miss, busca no banco e popula o cache.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> Qual a diferença entre <strong>banco relacional</strong> e <strong>NoSQL</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Relacional: tabelas com esquema fixo, SQL, ACID; NoSQL: diversos modelos (chave-valor, documento, colunar, grafo), eventual consistency.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> O que é <strong>eventual consistency</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Garantia que o sistema se tornará consistente eventualmente, mas não imediatamente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <strong>strong consistency</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Garantia que todos os leituras veem a versão mais recente dos dados.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é <strong>JSONB</strong> no PostgreSQL?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Tipo de dado que armazena JSON em formato binário, permitindo consultas e índices.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> Qual banco NoSQL é melhor para <strong>cache</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Redis (chave-valor em memória).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> Qual banco NoSQL é melhor para <strong>analytics</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">ClickHouse (colunar).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> Qual banco NoSQL é melhor para <strong>grafos</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Neo4j.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> Qual banco NoSQL é melhor para <strong>documentos flexíveis</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">MongoDB.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> O que é <strong>Pub/Sub</strong> no Redis?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Padrão de mensageria onde publicadores enviam mensagens para canais e assinantes as recebem.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é <strong>sharding</strong> em bancos NoSQL?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Particionamento horizontal de dados entre múltiplos nós.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que é <strong>replicação</strong> em bancos NoSQL?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Cópia dos dados em múltiplos nós para redundância e disponibilidade.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que é <strong>CAP Theorem</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Teorema que afirma que um sistema distribuído não pode garantir simultaneamente: Consistência, Disponibilidade e Tolerância a Partições.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> Qual a diferença entre <strong>SQL</strong> e <strong>NoSQL</strong> em termos de esquema?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">SQL: esquema fixo (tabelas); NoSQL: esquema flexível (schema-less).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> Qual banco é recomendado para <strong>séries temporais</strong> e por quê?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">ClickHouse (colunar): compressão eficiente, agregações rápidas por coluna.</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

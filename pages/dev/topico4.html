@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Funções e Escopo</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>🔧 Funções e Escopo</h1>
+    <p class="subtitle">Quebrar programas em funções, entender protótipos, passagem por valor e escopo — e a pilha de chamadas que explica a recursão.</p>
+
+    <!-- Seção 1: Anatomia -->
+    <div class="section">
+        <h2>1. Anatomia de uma Função</h2>
+        <pre><code>#include &lt;stdio.h&gt;
+
+int soma(int a, int b);  /* protótipo: avisa o compilador antes do uso */
+
+int main(void) {
+    printf("%d\n", soma(2, 3));  /* 5 */
+    return 0;
+}
+
+int soma(int a, int b) {  /* definição */
+    return a + b;
+}</code></pre>
+        <ul>
+            <li><strong>Protótipo</strong>: declara a função antes do uso</li>
+            <li><strong>Definição</strong>: o corpo da função com a lógica</li>
+            <li><strong>Parâmetros</strong>: variáveis que a função recebe</li>
+            <li><strong>Retorno</strong>: valor devolvido (ou <code>void</code> se não retorna nada)</li>
+        </ul>
+    </div>
+
+    <!-- Seção 2: Passagem por Valor -->
+    <div class="section">
+        <h2>2. Por Valor — A Regra que Muda Tudo</h2>
+        <p>Em C, argumentos são <strong>copiados</strong>. A função recebe cópias; mexer nelas não afeta as originais:</p>
+        <pre><code>void tenta_dobrar(int x) {
+    x = x * 2;  /* dobra a CÓPIA */
+}
+
+int n = 10;
+tenta_dobrar(n);
+printf("%d\n", n);  /* 10 - inalterado */</code></pre>
+        <p style="color:var(--warning);">💡 Para alterar de verdade, passa-se o <strong>endereço</strong> (capítulo de ponteiros).</p>
+    </div>
+
+    <!-- Seção 3: Escopo e Vida Útil -->
+    <div class="section">
+        <h2>3. Escopo e Vida Útil</h2>
+        <ul>
+            <li><strong>Variável local</strong>: nasce na chamada e morre no retorno (vive na <strong>stack</strong>)</li>
+            <li><strong>Variável global</strong>: existe o programa todo — use com parcimônia</li>
+            <li><strong>static</strong> dentro de função: mantém o valor entre chamadas</li>
+        </ul>
+        <pre><code>int global = 10;  /* global - visível em todo o arquivo */
+
+void contador() {
+    static int calls = 0;  /* mantém valor entre chamadas */
+    calls++;
+    printf("Chamada nº %d\n", calls);
+}</code></pre>
+    </div>
+
+    <!-- Seção 4: Recursão -->
+    <div class="section">
+        <h2>4. Recursão</h2>
+        <pre><code>long fatorial(int n) {
+    if (n &lt;= 1) return 1;  /* caso base — sem ele, stack overflow */
+    return n * fatorial(n - 1);  /* passo: reduz o problema */
+}</code></pre>
+        <div style="background:var(--bg-dark); padding:16px; border-radius:8px; margin:12px 0;">
+            <h4 style="color:var(--primary);">Como funciona a recursão do fatorial(5):</h4>
+            <pre style="font-size:12px;">
+fatorial(5)
+  → 5 * fatorial(4)
+  → 5 * 4 * fatorial(3)
+  → 5 * 4 * 3 * fatorial(2)
+  → 5 * 4 * 3 * 2 * fatorial(1)
+  → 5 * 4 * 3 * 2 * 1
+  → 120
+            </pre>
+        </div>
+    </div>
+
+    <!-- Seção 5: A Pilha de Chamadas -->
+    <div class="section">
+        <h2>5. A Pilha de Chamadas (Call Stack)</h2>
+        <p>A pilha de chamadas é uma estrutura LIFO (último a entrar, primeiro a sair) que gerencia as chamadas de função:</p>
+        <div style="background:var(--bg-dark); padding:16px; border-radius:8px; font-family:monospace; font-size:13px;">
+            <div style="border-bottom:1px solid var(--border); padding:4px;">main()</div>
+            <div style="border-bottom:1px solid var(--border); padding:4px; padding-left:20px;">fatorial(5)</div>
+            <div style="border-bottom:1px solid var(--border); padding:4px; padding-left:40px;">fatorial(4)</div>
+            <div style="border-bottom:1px solid var(--border); padding:4px; padding-left:60px;">fatorial(3)</div>
+            <div style="border-bottom:1px solid var(--border); padding:4px; padding-left:80px;">fatorial(2)</div>
+            <div style="padding:4px; padding-left:100px; color:var(--primary);">fatorial(1) ← topo da pilha</div>
+        </div>
+        <p style="margin-top:8px;">Cada chamada empilha um <strong>stack frame</strong> com parâmetros, variáveis locais e endereço de retorno. Quando a função retorna, seu frame é desempilhado.</p>
+        <p style="color:var(--danger);">⚠️ Recursão sem caso base → estouro da pilha (<strong>stack overflow</strong>)</p>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Escreva <code>int max3(int a, int b, int c)</code> que retorna o maior dos três.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>int m = a > b ? a : b; return m > c ? m : c;</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Escreva <code>int eh_primo(int n)</code> que retorna 1 se primo, 0 se não.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Laço <code>for (int i=2; i*i &lt;= n; i++) if (n%i==0) return 0;</code> (trate n &lt; 2)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Por que o programa da seção 2 imprime 10 e não 20?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Passagem por valor: a função altera uma <strong>cópia</strong> do valor.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Escreva <code>long fib(int n)</code> recursiva. Por que para n=50 ela fica lenta?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Recalcula os mesmos subproblemas exponencialmente (fib(48) duas vezes, fib(47) três...).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> O que acontece se remover o caso base da recursão?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Chamadas infinitas → estouro da pilha (<strong>stack overflow</strong>).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> O que é um protótipo de função?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Declaração da função que informa ao compilador seu nome, tipo de retorno e parâmetros.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> O que é uma variável local?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Variável declarada dentro de uma função, visível apenas dentro dela.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> O que é uma variável global?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Variável declarada fora de qualquer função, visível em todo o arquivo.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que faz a palavra-chave <code>static</code> dentro de uma função?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Mantém o valor da variável entre chamadas da função.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> O que é a pilha de chamadas (call stack)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Estrutura que gerencia as chamadas de função, armazenando parâmetros e variáveis locais.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que acontece com as variáveis locais quando uma função retorna?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">São destruídas (liberadas da pilha).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> O que é um <strong>stack frame</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Bloco de dados na pilha que contém parâmetros, variáveis locais e endereço de retorno de uma função.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> Escreva uma função <code>int soma_recursiva(int n)</code> que soma de 1 até n usando recursão.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>if (n &lt;= 0) return 0; return n + soma_recursiva(n - 1);</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> Qual a diferença entre <code>void</code> e <code>int</code> como tipo de retorno?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>void</code> não retorna valor; <code>int</code> retorna um inteiro.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é <strong>recursão de cauda</strong> (tail recursion)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quando a chamada recursiva é a última operação da função. Alguns compiladores otimizam para evitar stack overflow.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> Escreva <code>int soma_digitos(int n)</code> que soma os dígitos de um número usando recursão.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>if (n &lt; 10) return n; return (n % 10) + soma_digitos(n / 10);</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que é <strong>overflow de pilha</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quando a pilha de chamadas excede seu tamanho máximo, geralmente por recursão infinita.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> Uma função pode chamar a si mesma? Como isso se chama?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Sim, chama-se <strong>recursão</strong>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é uma <strong>função pura</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Função que sempre retorna o mesmo valor para os mesmos argumentos e não tem efeitos colaterais.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> Como passar um array para uma função em C?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Passa-se o ponteiro para o primeiro elemento (o array decai para ponteiro).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> Qual a saída do código abaixo?<br><code>int x = 5; int y = 10; troca(x, y); printf("%d %d", x, y);</code></div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>5 10</code> — passagem por valor não altera as variáveis originais.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> O que o compilador faz ao encontrar um protótipo de função?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Verifica se as chamadas à função estão corretas (número e tipo de argumentos).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> Escreva uma função recursiva que calcula a potência <code>base^expoente</code>.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>if (exp == 0) return 1; return base * potencia(base, exp - 1);</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que é <strong>função inline</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Função cujo código é inserido no local da chamada, evitando overhead de chamada (sugestão ao compilador).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> O que é <strong>efeito colateral</strong> em uma função?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quando a função modifica algo fora de seu escopo (ex: variável global, arquivo, tela).</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

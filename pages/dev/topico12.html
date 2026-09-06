@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Algoritmos Clássicos</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>🔄 Algoritmos Clássicos</h1>
+    <p class="subtitle">Busca binária, os sorts que importam, BFS/DFS em grafos e a ideia de programação dinâmica — o kit que resolve entrevistas e problemas reais.</p>
+
+    <!-- Seção 1: Busca Binária -->
+    <div class="section">
+        <h2>1. Busca Binária</h2>
+        <pre><code>int busca_binaria(int *v, int n, int alvo) {
+    int lo = 0, hi = n - 1;
+    while (lo <= hi) {
+        int meio = lo + (hi - lo) / 2;  /* evita overflow de (lo+hi) */
+        if (v[meio] == alvo) return meio;
+        if (v[meio] < alvo) lo = meio + 1;
+        else hi = meio - 1;
+    }
+    return -1;
+}</code></pre>
+        <ul>
+            <li><strong>Pré-condição</strong>: array ordenado</li>
+            <li><strong>Invariante</strong>: o alvo, se existe, está em <code>[lo, hi]</code></li>
+        </ul>
+    </div>
+
+    <!-- Seção 2: Ordenação -->
+    <div class="section">
+        <h2>2. Ordenação — O Mapa</h2>
+        <table>
+            <tr><th>Algoritmo</th><th>Custo</th><th>Quando</th></tr>
+            <tr><td>Insertion sort</td><td>O(n²), O(n) se quase ordenado</td><td>arrays pequenos/quase prontos</td></tr>
+            <tr><td>Merge sort</td><td>O(n log n) sempre, estável</td><td>garantia de pior caso; listas</td></tr>
+            <tr><td>Quicksort</td><td>O(n log n) médio, O(n²) pior</td><td>o mais rápido na prática (in-place)</td></tr>
+            <tr><td>Heapsort</td><td>O(n log n), in-place</td><td>pior caso garantido sem memória extra</td></tr>
+        </table>
+
+        <h3>Merge Sort (Divisão e Conquista)</h3>
+        <pre><code>void merge_sort(int *v, int l, int r) {
+    if (l >= r) return;
+    int m = l + (r - l) / 2;
+    merge_sort(v, l, m);
+    merge_sort(v, m + 1, r);
+    merge(v, l, m, r);  /* intercala os dois arrays ordenados */
+}</code></pre>
+    </div>
+
+    <!-- Seção 3: BFS e DFS -->
+    <div class="section">
+        <h2>3. Grafos: BFS e DFS</h2>
+
+        <h3>BFS (Busca em Largura)</h3>
+        <pre><code>BFS(origem):
+    fila = [origem]
+    visitado[origem] = true
+    enquanto fila não vazia:
+        v = fila.pop_front()
+        para cada vizinho u de v:
+            se não visitado[u]:
+                visitado[u] = true
+                fila.push_back(u)</code></pre>
+        <ul>
+            <li>Explora em <strong>ondas</strong> — usa <strong>FILA</strong></li>
+            <li>Dá o <strong>menor caminho</strong> em arestas (grafos sem peso)</li>
+        </ul>
+
+        <h3>DFS (Busca em Profundidade)</h3>
+        <pre><code>DFS(v):
+    visitado[v] = true
+    para cada vizinho u de v:
+        se não visitado[u]:
+            DFS(u)</code></pre>
+        <ul>
+            <li>Mergulha <strong>fundo</strong> — usa <strong>PILHA</strong>/recursão</li>
+            <li>Detecta ciclos e produz <strong>ordenação topológica</strong></li>
+        </ul>
+    </div>
+
+    <!-- Seção 4: Programação Dinâmica -->
+    <div class="section">
+        <h2>4. Programação Dinâmica</h2>
+        <p>Quando a recursão repete subproblemas, <strong>guarde os resultados</strong> (memorização) ou construa de baixo para cima:</p>
+
+        <pre><code>long fib(int n) {  /* O(n) em vez de exponencial */
+    long a = 0, b = 1;
+    for (int i = 0; i < n; i++) {
+        long t = a + b;
+        a = b;
+        b = t;
+    }
+    return a;
+}</code></pre>
+
+        <h3>Receita DP</h3>
+        <ol>
+            <li>Defina o <strong>subproblema</strong></li>
+            <li>Escreva a <strong>recorrência</strong></li>
+            <li>Resolva na <strong>ordem certa</strong> guardando respostas</li>
+        </ol>
+    </div>
+
+    <!-- Seção 5: Exemplo — Troco com DP -->
+    <div class="section">
+        <h2>5. Exemplo Resolvido — Troco com DP</h2>
+        <p>Moedas {1, 3, 4}, alvo 6.</p>
+        <p><code>dp[x]</code> = mínimo de moedas para x; <code>dp[0] = 0</code>; <code>dp[x] = 1 + min(dp[x−moeda])</code></p>
+        <p><code>dp: 0,1,2,1,1,2,2 → resposta 2 (3+3)</code></p>
+        <p>Complexidade: <code>O(alvo × moedas)</code>.</p>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Trace a busca binária de 31 em [2, 5, 8, 12, 19, 23, 31, 44]: quais índices meio são visitados?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">meio=3 (12) → 5 (23) → 6 (31): 3 passos.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Por que merge sort é <code>O(n log n)</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">log n níveis de divisão × O(n) de intercalação por nível.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Modele: dado o grafo de dependências de microsserviços, como achar a ordem segura de deploy? Que algoritmo?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ordenação topológica via DFS (o grafo precisa ser acíclico).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> BFS a partir de A em: A-B, A-C, B-D, C-D, D-E. Distância de A a E?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">A(0) → B,C(1) → D(2) → E(3). Distância = 3.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> Escreva a recorrência DP do troco mínimo e calcule para moedas {1, 5, 10} e alvo 12.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">dp[x] = 1 + min(dp[x-1], dp[x-5], dp[x-10]); dp[12] = 3 (10+1+1).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> Qual a diferença entre BFS e DFS?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">BFS explora em largura (usa fila); DFS explora em profundidade (usa pilha/recursão).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> Qual a complexidade de tempo do BFS em um grafo com V vértices e E arestas?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(V + E)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> Qual a complexidade de tempo do DFS em um grafo com V vértices e E arestas?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(V + E)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que é <strong>ordenação topológica</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ordenação de vértices em um DAG onde para toda aresta u→v, u aparece antes de v.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> Qual algoritmo é usado para encontrar o <strong>menor caminho</strong> em grafos com pesos positivos?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Dijkstra (BFS + heap de prioridade).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> Qual algoritmo é usado para encontrar o <strong>menor caminho</strong> em grafos com pesos negativos?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Bellman-Ford (<code>O(VE)</code>).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> O que é <strong>programação dinâmica</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Técnica que resolve problemas complexos quebrando em subproblemas e guardando resultados para evitar recálculo.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> Qual a diferença entre <strong>memoization</strong> e <strong>tabulation</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Memoization: top-down (recursivo com cache); Tabulation: bottom-up (iterativo com tabela).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> Qual a complexidade do algoritmo de Dijkstra com heap?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O((V + E) log V)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> O que é <strong>backtracking</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Técnica de busca que tenta todas as possibilidades e retrocede quando falha.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> Qual a complexidade do <strong>insertion sort</strong> no pior caso?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n²)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> Qual a complexidade do <strong>insertion sort</strong> no melhor caso?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n)</code> (array já ordenado)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> Qual a complexidade do <strong>quick sort</strong> no melhor caso?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n log n)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> Qual a complexidade do <strong>quick sort</strong> no pior caso?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n²)</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> Qual algoritmo de ordenação é <strong>estável</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Merge sort (e insertion sort) — mantém a ordem relativa de elementos iguais.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é <strong>DAG</strong> (Directed Acyclic Graph)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Grafo direcionado sem ciclos.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> Qual algoritmo detecta ciclos em um grafo direcionado?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">DFS com três estados (não visitado, visitando, visitado).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> Qual a complexidade do <strong>heapsort</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>O(n log n)</code> em todos os casos</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> O que é o problema do <strong>caixeiro viajante</strong> (TSP)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Encontrar o menor caminho que visita todas as cidades uma vez e retorna à origem. É NP-difícil.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> Qual a diferença entre <strong>P</strong> e <strong>NP</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">P: problemas resolvíveis em tempo polinomial; NP: problemas verificáveis em tempo polinomial.</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

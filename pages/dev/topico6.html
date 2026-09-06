@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Ponteiros</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+<div class="topic-content">
+    <h1>📍 Ponteiros — O Coração do C (e da Máquina)</h1>
+    <p class="subtitle">O capítulo mais importante do livro. Entender endereços, & e *, aritmética de ponteiros e a verdade sobre arrays.</p>
+
+    <!-- Seção 1: Modelo Mental -->
+    <div class="section">
+        <h2>1. O Modelo Mental</h2>
+        <p>Toda variável mora num <strong>endereço de memória</strong>. Um ponteiro é uma variável que guarda um endereço.</p>
+        <pre><code>int x = 42;
+int *p = &amp;x;      /* &amp; = "endereço de"; p aponta para x */
+printf("%d\n", *p); /* * = "valor apontado": 42 */
+*p = 100;          /* escreve NO ENDEREÇO apontado */
+printf("%d\n", x); /* 100 - x mudou através de p */</code></pre>
+        
+        <div style="background:var(--bg-dark); padding:16px; border-radius:8px; margin:12px 0; text-align:center;">
+            <pre style="font-size:14px;">
+    Variável x (valor 42)    →    Ponteiro p (endereço de x)
+    ┌─────────┐                    ┌─────────┐
+    │   x=42   │  ←─────────────   │ p=&amp;x   │
+    └─────────┘                    └─────────┘
+    Endereço: 0x7fff...            Endereço: 0x7fff...
+            </pre>
+        </div>
+
+        <p><strong>Regras de ouro:</strong></p>
+        <ul>
+            <li><code>NULL</code> = "não aponta para nada" (sempre inicialize)</li>
+            <li>Desreferenciar <code>NULL</code> = <strong>crash</strong></li>
+            <li>Leia declarações de trás para frente: <code>int *p</code> = "p é ponteiro para int"</li>
+        </ul>
+    </div>
+
+    <!-- Seção 2: Passagem por Referência -->
+    <div class="section">
+        <h2>2. O Mistério do Capítulo 4, Resolvido</h2>
+        <pre><code>void dobra(int *x) {
+    *x = *x * 2;   /* recebe o ENDEREÇO */
+}
+
+int n = 10;
+dobra(&amp;n);
+printf("%d\n", n); /* 20 - agora sim */</code></pre>
+        <p>"Passagem por referência" em C é isto: passar o <strong>endereço por valor</strong>.</p>
+        <p style="color:var(--warning);">💡 É também por que <code>scanf</code> exige <code>&amp;x</code>.</p>
+    </div>
+
+    <!-- Seção 3: Ponteiros e Arrays -->
+    <div class="section">
+        <h2>3. Ponteiros e Arrays — A Verdade</h2>
+        <p>O nome de um array <strong>decai</strong> para o endereço do primeiro elemento. A aritmética de ponteiros anda em <strong>unidades do tipo</strong>:</p>
+        <pre><code>int v[4] = {10, 20, 30, 40};
+int *p = v;          /* == &amp;v[0] */
+printf("%d\n", *(p + 2)); /* 30 - pulou 2 ints, não 2 bytes */
+/* v[i] é literalmente *(v + i) */</code></pre>
+        <p>Por isso arrays chegam "por referência" em funções: o que viaja é o <strong>endereço</strong>.</p>
+    </div>
+
+    <!-- Seção 4: Swap -->
+    <div class="section">
+        <h2>4. Exemplo Resolvido — Swap, o Rito de Passagem</h2>
+        <pre><code>void swap(int *a, int *b) {
+    int tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
+int x = 1, y = 2;
+swap(&amp;x, &amp;y);
+/* x==2, y==1 */</code></pre>
+        <p>Se você explica por que o swap sem ponteiros não funciona, os ponteiros são seus.</p>
+    </div>
+
+    <!-- Seção 5: Ponteiros para Ponteiros -->
+    <div class="section">
+        <h2>5. Ponteiros para Ponteiros</h2>
+        <pre><code>int x = 5;
+int *p = &amp;x;
+int **pp = &amp;p;
+
+printf("%d\n", **pp);  /* 5 */
+printf("%p\n", *pp);   /* endereço de x */
+printf("%p\n", pp);    /* endereço de p */</code></pre>
+        <div style="background:var(--bg-dark); padding:16px; border-radius:8px; text-align:center;">
+            <pre style="font-size:12px;">
+    x=5    ←    p=&amp;x    ←    pp=&amp;p
+    ┌───┐      ┌────┐      ┌─────┐
+    │ 5 │  ←─  │ &amp;x │  ←─  │ &amp;p  │
+    └───┘      └────┘      └─────┘
+            </pre>
+        </div>
+    </div>
+
+    <!-- Seção 6: Os Três Crimes de Ponteiro -->
+    <div class="section">
+        <h2>6. ⚠️ Os Três Crimes de Ponteiro</h2>
+        <ul>
+            <li style="color:var(--danger);">1. Usar ponteiro <strong>não inicializado</strong> (aponta para lixo)</li>
+            <li style="color:var(--danger);">2. <strong>Desreferenciar NULL</strong></li>
+            <li style="color:var(--danger);">3. Retornar endereço de <strong>variável local</strong> (dangling pointer)</li>
+        </ul>
+        <p>Ferramentas: <strong>gdb</strong> e <strong>Valgrind</strong> caçam os três.</p>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="exercicios">
+        <h2>📝 Exercícios — 25 questões</h2>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">1.</span> Desenhe (papel!) a memória de: <code>int a=5; int *p=&amp;a; int **pp=&amp;p;</code>. Quanto vale <code>**pp</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>5</code> (pp → p → a)</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">2.</span> Escreva <code>void troca_sinais(int *v, int n)</code> que inverte o sinal de cada elemento.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>for (int i = 0; i &lt; n; i++) v[i] = -v[i];</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">3.</span> Por que <code>strlen</code> recebe <code>const char *s</code> e funciona para qualquer string?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Recebe o endereço do 1º char e anda até o terminador; <code>const</code> promete não alterar.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">4.</span> Implemente <code>size_t meu_strlen(const char *s)</code> com um ponteiro andando até o <code>\0</code>.</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>const char *q = s; while (*q) q++; return q - s;</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">5.</span> O que está errado: <code>int *f(void){ int x=7; return &amp;x; }</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Retorna endereço de variável local destruída — comportamento indefinido.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">6.</span> O que é um <strong>dangling pointer</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ponteiro que aponta para uma região de memória já liberada ou fora de escopo.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">7.</span> Qual a diferença entre <code>int *p</code> e <code>int p</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>int *p</code> é um ponteiro para inteiro; <code>int p</code> é um inteiro.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">8.</span> O que significa <code>int *p = NULL;</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ponteiro <code>p</code> não aponta para lugar nenhum.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">9.</span> O que acontece se desreferenciarmos <code>NULL</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">O programa crasha com <strong>segmentation fault</strong>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">10.</span> Como acessar o valor apontado por um ponteiro?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Usando o operador <code>*</code> (asterisco): <code>*p</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">11.</span> O que é <strong>aritmética de ponteiros</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Operações como <code>p++</code> que avançam o ponteiro em unidades do tamanho do tipo apontado.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">12.</span> Se <code>int v[5]</code>, qual a relação entre <code>v</code> e <code>&amp;v[0]</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">São equivalentes: ambos apontam para o primeiro elemento do array.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">13.</span> Como passar um array para uma função que o modifica?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Passando o ponteiro para o primeiro elemento: <code>funcao(v)</code> ou <code>funcao(&amp;v[0])</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">14.</span> O que é <code>sizeof(void *)</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Tamanho de um ponteiro (geralmente 8 bytes em 64-bit, 4 bytes em 32-bit).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">15.</span> Para que serve <code>const</code> com ponteiros?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Indica que o valor apontado não será modificado (<code>const int *p</code>) ou que o ponteiro é constante (<code>int *const p</code>).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">16.</span> Qual a diferença entre <code>int *p</code> e <code>int p[]</code> em parâmetros de função?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">São idênticos: o array decai para ponteiro. <code>int p[]</code> é sintaxe açucarada para <code>int *p</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">17.</span> O que acontece no código: <code>int *p; *p = 5;</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Comportamento indefinido (p não foi inicializado, aponta para lixo).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">18.</span> Como criar um ponteiro para uma função em C?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>int (*funcPtr)(int, int);</code> — ponteiro para função que recebe dois ints e retorna int.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">19.</span> O que é <code>void *</code> em C?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Ponteiro genérico que pode apontar para qualquer tipo (usado em <code>malloc</code>).</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">20.</span> Como acessar um elemento de array usando aritmética de ponteiros?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>*(v + i)</code> é equivalente a <code>v[i]</code>.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">21.</span> O que é <strong>pointer aliasing</strong>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Quando dois ponteiros apontam para o mesmo endereço de memória.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">22.</span> Como copiar o valor apontado para outro ponteiro?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>int y = *p;</code> ou <code>int *q = malloc(sizeof(int)); *q = *p;</code></span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">23.</span> O que é <strong>Ponteiro Inteligente</strong> (smart pointer)?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Abstração em C++/Rust que gerencia automaticamente a vida útil da memória apontada. C não tem nativamente.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">24.</span> Qual o valor de <code>*p</code> após <code>int x=10; int *p=&amp;x; *p=20;</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito"><code>20</code> — modificou o valor de x através do ponteiro.</span>
+            </div>
+        </div>
+
+        <div class="exercicio">
+            <div class="pergunta"><span class="number">25.</span> Qual a saída de <code>printf("%p", p);</code>?</div>
+            <button class="resposta-btn" data-correct="true">Ver resposta</button>
+            <div class="resposta correct">
+                <strong>✅ Correta!</strong>
+                <span class="gabarito">Imprime o endereço de memória armazenado no ponteiro p (em hexadecimal).</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
